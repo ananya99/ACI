@@ -9,6 +9,7 @@
 #SBATCH --account=cs-503
 #SBATCH --qos=cs-503
 #SBATCH --gres=gpu:1
+#SBATCH --mem=64GB
 #SBATCH --job-name=aci_detection
 #SBATCH --output=aci_detection_%j.out
 #SBATCH --error=aci_detection_%j.err
@@ -28,4 +29,4 @@ else
 fi
 
 # Run the command with appropriate environment variables
-MUJOCO_GL=${MUJOCO_GL} python cambrian/main.py --eval example=detection env.renderer.render_modes='[rgb_array]' env.frame_skip=5 
+MUJOCO_GL=${MUJOCO_GL} python cambrian/main.py --train example=detection env.renderer.render_modes='[rgb_array]' env.frame_skip=5 

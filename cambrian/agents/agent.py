@@ -292,6 +292,7 @@ class MjCambrianAgent:
 
         It is assumed that the actions are normalized between -1 and 1.
         """
+        print(f"Applying action: {actions} on agent {self.name}")
         self._last_action = actions.copy()
         if len(actions) == 0:
             return

@@ -1,5 +1,7 @@
 import numpy as np
 import gym
+import matplotlib.pyplot as plt
+import os
 from ray.rllib.env.wrappers.pettingzoo_env import PettingZooEnv
 from ray.rllib.algorithms.ppo import PPOConfig
 from ray.rllib.algorithms.ppo.torch.default_ppo_torch_rl_module import DefaultPPOTorchRLModule
@@ -8,13 +10,9 @@ from ray.rllib.core.rl_module import RLModuleSpec
 from ray.rllib.policy.policy import PolicySpec
 from ray.tune.registry import register_env
 
-# 1. Create a custom Catalog to flatten Dict observations
+# 1. Custom Catalog (unchanged)
 class DictFlattenCatalog(PPOCatalog):
     def _determine_components_hook(self):
-        """
-        If the observation space is a gym.spaces.Dict, flatten all sub-spaces into
-        a single vector input for the encoder network. Otherwise, fall back to default.
-        """
         obs_space = self.observation_space
         if isinstance(obs_space, gym.spaces.Dict):
             total_dim = sum(int(np.product(sub.shape)) for sub in obs_space.spaces.values())
@@ -26,26 +24,25 @@ class DictFlattenCatalog(PPOCatalog):
         else:
             super()._determine_components_hook()
 
-# 2. Define an RLModuleSpec using our custom catalog
 module_spec = RLModuleSpec(
     module_class=DefaultPPOTorchRLModule,
     catalog_class=DictFlattenCatalog,
 )
 
-# 3. Environment registration
+# 2. Env registration (unchanged)
 from mpe2 import simple_tag_v3
 register_env("simple_tag", lambda cfg: PettingZooEnv(simple_tag_v3.env(
     num_good=cfg.get("num_good", 1),
-    num_adversaries=cfg.get("num_adversaries", 3),
+    num_adversaries=cfg.get("num_adversaries", 1),
     num_obstacles=cfg.get("num_obstacles", 2),
     max_cycles=cfg.get("max_cycles", 25),
 )))
 
-# 4. Policy mapping function with the new signature
+# 3. Policy mapping (unchanged)
 def policy_mapping_fn(agent_id, episode, **kwargs):
     return "adversary_policy" if agent_id.startswith("adversary") else "good_policy"
 
-# 5. Build the PPOConfig with env runners and RLModule
+# 4. Build config (unchanged)
 config = (
     PPOConfig()
       .environment("simple_tag", env_config={
@@ -72,13 +69,45 @@ config = (
       )
 )
 
-# 6. Run training
+# 5. Run training with logging and plotting
 autooh = config.build()
-print("Starting training loop…")
-for i in range(200):
-    autooh.train()
-    rewards = autooh.metrics.stats["env_runners"]["agent_episode_returns_mean"]
-    agent_reward = rewards['agent_0']
-    adv_reward = rewards['adversary_0']
-    print(f"Iteration {i:03d}: agent reward={agent_reward}; adv_reward={adv_reward}")
-    
+
+# Prepare storage
+agent_rewards = []
+adv_rewards = []
+
+# Open a CSV log file
+log_path = "./training_log.csv"
+with open(log_path, "w") as log_file:
+    # Header
+    log_file.write("iteration,agent_0,adversary_0\n")
+
+    print("Starting training loop…")
+    for i in range(5):
+        autooh.train()
+        rewards = autooh.metrics.stats["env_runners"]["agent_episode_returns_mean"]
+        ar = rewards.get('agent_0', np.nan)
+        adr = rewards.get('adversary_0', np.nan)
+
+        # Record
+        agent_rewards.append(ar)
+        adv_rewards.append(adr)
+
+        # Log to file
+        log_file.write(f"{i},{ar:.6f},{adr:.6f}\n")
+
+        # Also print to console
+        print(f"Iteration {i:03d}: agent reward={ar:.4f}; adv_reward={adr:.4f}")
+
+# 6. Plot the learning curves
+plt.figure(figsize=(8, 4))
+plt.plot(agent_rewards, label="Agent 0 (prey)")
+plt.plot(adv_rewards,  label="Adversary 0 (predator)")
+plt.xlabel("Training Iteration")
+plt.ylabel("Mean Episode Return")
+plt.title("Learning Curves")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+print(f"\nLogged results to {log_path}")

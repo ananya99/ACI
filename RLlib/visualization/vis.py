@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Path to your CSV file
-csv_path = './RLlib/dummy_log.csv'  # <- replace with your filename
+csv_path = './RLlib/logs/dummy_adv_1.csv'  # <- replace with your filename
 
 # Read the CSV into a DataFrame
 df = pd.read_csv(csv_path)
@@ -24,7 +24,7 @@ plt.legend()
 plt.grid(True)
 
 # Save the figure
-output_path = './RLlib/dummy_plot.png'
+output_path = './RLlib/visualization/dummy_adv_1.png'
 plt.savefig(output_path, dpi=300, bbox_inches='tight')
 print(f"Plot saved to {output_path}")
 

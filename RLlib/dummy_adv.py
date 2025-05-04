@@ -78,13 +78,13 @@ agent_rewards = []
 adv_rewards = []
 
 # Open a CSV log file
-log_path = "./RLlib/dummy_adv_log.csv"
+log_path = "./RLlib/dummy_adv_1.csv"
 with open(log_path, "w") as log_file:
     # Header
     log_file.write("iteration,agent_0,adversary_0\n")
 
     print("Starting training loop…")
-    for i in range(200):
+    for i in range(500):
         autooh.train()
         rewards = autooh.metrics.stats["env_runners"]["agent_episode_returns_mean"]
         ar = rewards.get('agent_0', np.nan)
@@ -115,7 +115,7 @@ fig_dir = "./RLlib/figures"
 os.makedirs(fig_dir, exist_ok=True)
 
 # save to disk
-fig_path = os.path.join(fig_dir, "dummy_adv.png")
+fig_path = os.path.join(fig_dir, "dummy_adv_1.png")
 plt.savefig(fig_path, dpi=300)   # you can adjust dpi/format here
 print(f"Saved plot to {fig_path}")
 

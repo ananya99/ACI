@@ -8,8 +8,8 @@ from cambrian import MjCambrianConfig, MjCambrianTrainer
 from cambrian.envs.env import MjCambrianEnv
 from cambrian.eyes.multi_eye import MjCambrianMultiEye
 from cambrian.eyes.optics import (
-    MjCambrianCircularApertureConfig,
-    MjCambrianMaskApertureConfig,
+    MjCambrianEllipticalApertureConfig,
+    MjCambrianEllipticalMaskApertureConfig,
     MjCambrianOpticsEye,
     MjCambrianOpticsEyeConfig,
 )
@@ -38,10 +38,10 @@ def _optics_render_override(
     pupil = torch.clip(torch.abs(pupil), 0, 1).permute(1, 2, 0)
     pupil = resize_with_aspect_fill(pupil, *image.shape[:2])
     pupil = add_text(pupil, "Pupil", fill=color)
-    if isinstance(self._config.aperture, MjCambrianCircularApertureConfig):
+    if isinstance(self._config.aperture, MjCambrianEllipticalMaskApertureConfig):
         pupil = add_text(
             pupil,
-            f"Radius: {self._config.aperture.radius:0.2f}",
+            f"A: {self._config.aperture.a:0.2f}",
             (0, 12),
             fill=color,
             size=8,
@@ -75,9 +75,10 @@ def step_callback(env: MjCambrianEnv):
 
     step, max_steps = env.episode_step, env.max_episode_steps
     initialize = True
-    if isinstance(config.aperture, MjCambrianCircularApertureConfig):
-        config.aperture.radius = sine_wave(step / max_steps)
-    if isinstance(config.aperture, MjCambrianMaskApertureConfig):
+    if isinstance(config.aperture, MjCambrianEllipticalApertureConfig):
+        config.aperture.a = sine_wave(step / max_steps)
+        config.aperture.b = sine_wave(step / max_steps)
+    if isinstance(config.aperture, MjCambrianEllipticalMaskApertureConfig):
         # Only initialize the mask every 20 steps
         initialize = step % 20 == 0
 

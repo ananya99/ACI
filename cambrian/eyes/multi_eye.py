@@ -113,6 +113,7 @@ class MjCambrianMultiEye(MjCambrianEye):
         """Generate the XML for all eyes."""
         xml = super().generate_xml(parent_xml, geom, parent_body_name)
         for eye in self._eyes.values():
+            print(f'Type of eye: {type(eye)}')
             eye_xml = eye.generate_xml(parent_xml, geom, parent_body_name)
             xml += eye_xml
         return xml

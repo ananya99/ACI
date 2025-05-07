@@ -1,6 +1,6 @@
 defaults:
   - aperture
-  - /MjCambrianMaskApertureConfig
+  - /MjCambrianEllipticalMaskApertureConfig
 
 mask: [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
 

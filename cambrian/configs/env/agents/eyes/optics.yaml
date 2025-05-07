@@ -1,10 +1,10 @@
 defaults:
   - eye
-  - /MjCambrianOpticsEyeConfig
-  - aperture: circular
+  - /MjCambrianOpticsEllipticalEye
+  - aperture: elliptical
 
 instance:
-  _target_: cambrian.eyes.MjCambrianOpticsEye
+  _target_: cambrian.eyes.MjCambrianOpticsEllipticalEye
   _partial_: true
 
 # Set the sensorsize to be fixed

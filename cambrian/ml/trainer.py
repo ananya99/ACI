@@ -4,13 +4,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Concatenate, Dict, Optional
 
 from hydra_config import HydraContainerConfig, config_wrapper
-from stable_baselines3.common.callbacks import BaseCallback, CallbackList
-from stable_baselines3.common.vec_env import (
-    DummyVecEnv,
-    SubprocVecEnv,
-    VecEnv,
-    VecMonitor,
-)
+from ray.rllib.algorithms import ppo
 
 from cambrian.envs.env import MjCambrianEnv, MjCambrianEnvConfig
 from cambrian.ml.model import MjCambrianModel
@@ -48,16 +42,27 @@ class MjCambrianTrainerConfig(HydraContainerConfig):
             calculate the fitness of the agent after training.
     """
 
+    # total_timesteps: int
+    # max_episode_steps: int
+    # n_envs: int
+
+    # model: Callable[[MjCambrianEnv], MjCambrianModel]
+    # callbacks: Dict[str, BaseCallback | Callable[[VecEnv], BaseCallback]]
+    # wrappers: Dict[str, Callable[[VecEnv], VecEnv] | None]
+
+    # prune_fn: Optional[Callable[[Concatenate["MjCambrianConfig", ...]], bool]] = None
+    # fitness_fn: Callable[Concatenate["MjCambrianConfig", ...], float]
+    
     total_timesteps: int
     max_episode_steps: int
     n_envs: int
 
-    model: Callable[[MjCambrianEnv], MjCambrianModel]
-    callbacks: Dict[str, BaseCallback | Callable[[VecEnv], BaseCallback]]
-    wrappers: Dict[str, Callable[[VecEnv], VecEnv] | None]
+    model: Callable[[Callable], MjCambrianModel]
+    callbacks: Optional[Callable] = None
+    wrappers: Optional[Dict[str, Callable]] = None
 
     prune_fn: Optional[Callable[[Concatenate["MjCambrianConfig", ...]], bool]] = None
-    fitness_fn: Callable[Concatenate["MjCambrianConfig", ...], float]
+    fitness_fn: Callable[[Concatenate["MjCambrianConfig", ...]], float]
 
 
 class MjCambrianTrainer:
@@ -74,10 +79,59 @@ class MjCambrianTrainer:
 
         get_logger().info(f"Logging to {self._config.expdir / 'logs'}...")
 
+    # def train(self) -> float:
+    #     """Train the agent."""
+
+    #     # Set to warn so we have something output to the error log
+    #     get_logger().warning(f"Training the agent in {self._config.expdir}...")
+
+    #     self._config.save(self._config.expdir / "config.yaml")
+
+    #     # Delete an existing finished file, if it exists
+    #     if (finished := self._config.expdir / "finished").exists():
+    #         finished.unlink()
+
+    #     # Prune the experiment, if necessary
+    #     if (prune_fn := self._config.trainer.prune_fn) and prune_fn(self._config):
+    #         Path(self._config.expdir / "pruned").touch()
+    #         return -float("inf")
+
+    #     # Setup the environment, model, and callbacks
+    #     env = self._make_env(self._config.env, self._config.trainer.n_envs)
+    #     eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
+    #     callback = self._make_callback(eval_env)
+    #     model = self._make_model(env)
+
+    #     # Save the eval environments xml
+    #     cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
+    #     cambrian_env.xml.write(self._config.expdir / "env.xml")
+    #     with open(self._config.expdir / "compiled_env.xml", "w") as f:
+    #         f.write(cambrian_env.spec.to_xml())
+
+    #     # Start training
+    #     total_timesteps = self._config.trainer.total_timesteps
+    #     model.learn(total_timesteps=total_timesteps, callback=callback)
+    #     get_logger().info("Finished training the agent...")
+
+    #     # Save the policy
+    #     get_logger().info(f"Saving model to {self._config.expdir}...")
+    #     model.save_policy(self._config.expdir)
+    #     get_logger().debug(f"Saved model to {self._config.expdir}...")
+
+    #     # The finished file indicates to the evo script that the agent is done
+    #     Path(self._config.expdir / "finished").touch()
+
+    #     # Calculate fitness
+    #     fitness = self._config.trainer.fitness_fn(self._config)
+    #     get_logger().info(f"Final Fitness: {fitness}")
+
+    #     # Save the final fitness to a file
+    #     with open(self._config.expdir / "train_fitness.txt", "w") as f:
+    #         f.write(str(fitness))
+
+    #     return fitness
     def train(self) -> float:
         """Train the agent."""
-
-        # Set to warn so we have something output to the error log
         get_logger().warning(f"Training the agent in {self._config.expdir}...")
 
         self._config.save(self._config.expdir / "config.yaml")
@@ -91,41 +145,74 @@ class MjCambrianTrainer:
             Path(self._config.expdir / "pruned").touch()
             return -float("inf")
 
-        # Setup the environment, model, and callbacks
-        env = self._make_env(self._config.env, self._config.trainer.n_envs)
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
-        callback = self._make_callback(eval_env)
-        model = self._make_model(env)
+        # Create environment and model
+        env_creator = self._make_env(self._config.env, self._config.trainer.n_envs)
+        model = self._make_model(env_creator)
 
-        # Save the eval environments xml
-        cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
-        cambrian_env.xml.write(self._config.expdir / "env.xml")
-        with open(self._config.expdir / "compiled_env.xml", "w") as f:
-            f.write(cambrian_env.spec.to_xml())
-
-        # Start training
+        # Train the model
         total_timesteps = self._config.trainer.total_timesteps
-        model.learn(total_timesteps=total_timesteps, callback=callback)
-        get_logger().info("Finished training the agent...")
+        model.train(total_timesteps=total_timesteps)
 
-        # Save the policy
-        get_logger().info(f"Saving model to {self._config.expdir}...")
-        model.save_policy(self._config.expdir)
-        get_logger().debug(f"Saved model to {self._config.expdir}...")
+        # Save the trained policy
+        model.save_policy(self._config.expdir / "model_checkpoint")
+        get_logger().info(f"Saved model to {self._config.expdir}...")
 
-        # The finished file indicates to the evo script that the agent is done
+        # Mark training as finished
         Path(self._config.expdir / "finished").touch()
 
         # Calculate fitness
         fitness = self._config.trainer.fitness_fn(self._config)
         get_logger().info(f"Final Fitness: {fitness}")
 
-        # Save the final fitness to a file
         with open(self._config.expdir / "train_fitness.txt", "w") as f:
             f.write(str(fitness))
 
         return fitness
 
+    # def eval(
+    #     self,
+    #     *,
+    #     filename: Optional[Path | str] = None,
+    #     record: bool = True,
+    #     load_if_exists: bool = False,
+    #     **callback_kwargs,
+    # ) -> float:
+    #     self._config.save(self._config.expdir / "eval_config.yaml")
+
+    #     eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
+    #     model = self._make_model(eval_env)
+    #     if load_if_exists and (self._config.expdir / "best_model.zip").exists():
+    #         get_logger().info("Loading best model...")
+    #         model = model.load(self._config.expdir / "best_model")
+
+    #     # Save the eval environments xml
+    #     cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
+    #     cambrian_env.xml.write(self._config.expdir / "eval_env.xml")
+    #     with open(self._config.expdir / "compiled_eval_env.xml", "w") as f:
+    #         f.write(cambrian_env.spec.to_xml())
+
+    #     n_runs = self._config.eval_env.n_eval_episodes
+    #     filename = self._config.eval_env.save_filename
+    #     record_kwargs = dict(
+    #         path=self._config.expdir / filename,
+    #         save_mode=self._config.eval_env.renderer.save_mode,
+    #     )
+    #     if not record:
+    #         record_kwargs = None
+    #     evaluate_policy(
+    #         eval_env, model, n_runs, record_kwargs=record_kwargs, **callback_kwargs
+    #     )
+
+    #     # Calculate fitness
+    #     fitness = self._config.trainer.fitness_fn(self._config)
+    #     get_logger().info(f"Final Fitness: {fitness}")
+
+    #     # Save the final fitness to a file
+    #     with open(self._config.expdir / f"{filename}_fitness.txt", "w") as f:
+    #         f.write(str(fitness))
+
+    #     return fitness
+    
     def eval(
         self,
         *,
@@ -134,37 +221,19 @@ class MjCambrianTrainer:
         load_if_exists: bool = False,
         **callback_kwargs,
     ) -> float:
+        """Evaluate the agent."""
         self._config.save(self._config.expdir / "eval_config.yaml")
 
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
-        model = self._make_model(eval_env)
-        if load_if_exists and (self._config.expdir / "best_model.zip").exists():
-            get_logger().info("Loading best model...")
-            model = model.load(self._config.expdir / "best_model")
+        env_creator = self._make_env(self._config.eval_env, 1)
+        model = self._make_model(env_creator)
 
-        # Save the eval environments xml
-        cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
-        cambrian_env.xml.write(self._config.expdir / "eval_env.xml")
-        with open(self._config.expdir / "compiled_eval_env.xml", "w") as f:
-            f.write(cambrian_env.spec.to_xml())
+        if load_if_exists and (self._config.expdir / "model_checkpoint").exists():
+            get_logger().info("Loading saved model checkpoint...")
+            model.load_policy(self._config.expdir / "model_checkpoint")
 
-        n_runs = self._config.eval_env.n_eval_episodes
-        filename = self._config.eval_env.save_filename
-        record_kwargs = dict(
-            path=self._config.expdir / filename,
-            save_mode=self._config.eval_env.renderer.save_mode,
-        )
-        if not record:
-            record_kwargs = None
-        evaluate_policy(
-            eval_env, model, n_runs, record_kwargs=record_kwargs, **callback_kwargs
-        )
+        fitness = model.evaluate(env_creator, n_episodes=self._config.eval_env.n_eval_episodes)
+        get_logger().info(f"Evaluation Fitness: {fitness}")
 
-        # Calculate fitness
-        fitness = self._config.trainer.fitness_fn(self._config)
-        get_logger().info(f"Final Fitness: {fitness}")
-
-        # Save the final fitness to a file
         with open(self._config.expdir / f"{filename}_fitness.txt", "w") as f:
             f.write(str(fitness))
 
@@ -175,54 +244,70 @@ class MjCambrianTrainer:
     def _calc_seed(self, i: int) -> int:
         return self._config.seed + i
 
-    def _make_env(
-        self,
-        config: MjCambrianEnvConfig,
-        n_envs: int,
-        *,
-        monitor: str | None = "monitor.csv",
-    ) -> VecEnv:
-        assert n_envs > 0, f"n_envs must be > 0, got {n_envs}."
+    # def _make_env(
+    #     self,
+    #     config: MjCambrianEnvConfig,
+    #     n_envs: int,
+    #     *,
+    #     monitor: str | None = "monitor.csv",
+    # ) -> VecEnv:
+    #     assert n_envs > 0, f"n_envs must be > 0, got {n_envs}."
 
-        # Create the environments
-        envs = []
-        for i in range(n_envs):
+    #     # Create the environments
+    #     envs = []
+    #     for i in range(n_envs):
+    #         wrappers = [w for w in self._config.trainer.wrappers.values() if w]
+    #         wrapped_env = make_wrapped_env(
+    #             config=config.copy(),
+    #             name=self._config.expname,
+    #             wrappers=wrappers,
+    #             seed=self._calc_seed(i),
+    #         )
+    #         envs.append(wrapped_env)
+
+    #     # Wrap the environments
+    #     # Explicitly set start_method to spawn to avoid using forkserver on mac
+    #     vec_env = (
+    #         DummyVecEnv(envs)
+    #         if n_envs == 1
+    #         else SubprocVecEnv(envs, start_method="spawn")
+    #     )
+    #     if monitor is not None:
+    #         vec_env = VecMonitor(vec_env, str(self._config.expdir / monitor))
+
+    #     # Do an initial reset
+    #     vec_env.reset()
+    #     return vec_env
+    
+    def _make_env(self, config: MjCambrianEnvConfig, n_envs: int, **kwargs) -> Callable:
+        """Creates a single environment for RLlib."""
+        def env_creator():
             wrappers = [w for w in self._config.trainer.wrappers.values() if w]
-            wrapped_env = make_wrapped_env(
+            return make_wrapped_env(
                 config=config.copy(),
                 name=self._config.expname,
                 wrappers=wrappers,
-                seed=self._calc_seed(i),
+                seed=self._calc_seed(0),
             )
-            envs.append(wrapped_env)
+        return env_creator
 
-        # Wrap the environments
-        # Explicitly set start_method to spawn to avoid using forkserver on mac
-        vec_env = (
-            DummyVecEnv(envs)
-            if n_envs == 1
-            else SubprocVecEnv(envs, start_method="spawn")
-        )
-        if monitor is not None:
-            vec_env = VecMonitor(vec_env, str(self._config.expdir / monitor))
+    # def _make_callback(self, env: VecEnv) -> CallbackList:
+    #     """Makes the callbacks."""
+    #     from functools import partial
 
-        # Do an initial reset
-        vec_env.reset()
-        return vec_env
+    #     callbacks = []
+    #     for callback in self._config.trainer.callbacks.values():
+    #         # TODO: is this a good assumption? is there a better way to do this?
+    #         if isinstance(callback, partial):
+    #             callback = callback(env)
+    #         callbacks.append(callback)
 
-    def _make_callback(self, env: VecEnv) -> CallbackList:
-        """Makes the callbacks."""
-        from functools import partial
+    #     return CallbackList(callbacks)
 
-        callbacks = []
-        for callback in self._config.trainer.callbacks.values():
-            # TODO: is this a good assumption? is there a better way to do this?
-            if isinstance(callback, partial):
-                callback = callback(env)
-            callbacks.append(callback)
-
-        return CallbackList(callbacks)
-
-    def _make_model(self, env: VecEnv) -> MjCambrianModel:
-        """This method creates the model."""
-        return self._config.trainer.model(env=env)
+    # def _make_model(self, env: VecEnv) -> MjCambrianModel:
+    #     """This method creates the model."""
+    #     return self._config.trainer.model(env=env)
+    
+    def _make_model(self, env_creator: Callable) -> ppo.PPO:
+        """Creates an RLlib Trainer."""
+        return self._config.trainer.model(env_creator, policy_kwargs=self._config.trainer.policy_kwargs)

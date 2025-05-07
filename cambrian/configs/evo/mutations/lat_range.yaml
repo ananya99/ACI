@@ -2,7 +2,7 @@
 
 hydra:
   sweeper:
-    params:
+    parameterization:
       env.agents.agent.eyes.eye.lat_range:
         init: ${${parent:}}
         lower: -90

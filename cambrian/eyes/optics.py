@@ -62,17 +62,16 @@ class MjCambrianEllipticalApertureConfig(MjCambrianApertureConfig):
         self, X1_Y1: torch.Tensor, Lx: float, Ly: float
     ) -> torch.Tensor:
         # Generate meshgrid again because X1_Y1 alone isn't sufficient for elliptical check
-        pupil_Mx, pupil_My = X1_Y1.shape
-        x = torch.linspace(-Lx / 2.0, Lx / 2.0, pupil_Mx)
-        y = torch.linspace(-Ly / 2.0, Ly / 2.0, pupil_My)
-        X, Y = torch.meshgrid(x, y, indexing="ij")
+        X = X1_Y1[0]  # x-coordinates
+        Y = X1_Y1[1]  # y-coordinates
 
-        # Normalize coordinates to semi-major/minor axes
-        norm_x = X / ((Lx / 2) * self.a + 1e-7)
-        norm_y = Y / ((Ly / 2) * self.b + 1e-7)
-        print(f'a: {self.a}, b: {self.b}, Lx: {Lx}, Ly: {Ly}')
+        aperture_a = Lx / 2 * self.a + 1e-7
+        aperture_b = Ly / 2 * self.b + 1e-7
 
-        # Ellipse equation: (x/a)^2 + (y/b)^2 <= 1
+        norm_x = X / aperture_a
+        norm_y = Y / aperture_b
+
+        # Ellipse condition: (x/a)^2 + (y/b)^2 <= 1
         return (norm_x**2 + norm_y**2) <= 1.0
 
 
@@ -133,23 +132,40 @@ class MjCambrianEllipticalMaskApertureConfig(MjCambrianApertureConfig):
         scale_y (float): Vertical scaling (semi-minor axis, relative to Ly/2).
     """
 
-    scale_x: float
-    scale_y: float
+    a: float
+    b: float
+    size: Optional[Tuple[int, int]] = None
 
     def calculate_aperture_mask(
         self, X1_Y1: torch.Tensor, Lx: float, Ly: float
     ) -> torch.Tensor:
-        pupil_Mx, pupil_My = X1_Y1.shape
-        fx = torch.linspace(-Lx / 2.0, Lx / 2.0, pupil_Mx)
-        fy = torch.linspace(-Ly / 2.0, Ly / 2.0, pupil_My)
-        X, Y = torch.meshgrid(fx, fy, indexing="ij")
+        X = X1_Y1[0]
+        Y = X1_Y1[1]
 
-        # Normalize coordinates for elliptical mask
-        norm_X = X / (Lx * self.scale_x / 2.0 + 1e-7)
-        norm_Y = Y / (Ly * self.scale_y / 2.0 + 1e-7)
+        aperture_a = Lx / 2 * self.a + 1e-7
+        aperture_b = Ly / 2 * self.b + 1e-7
 
-        ellipse_mask = norm_X**2 + norm_Y**2 <= 1.0
-        return ellipse_mask
+        norm_x = X / aperture_a
+        norm_y = Y / aperture_b
+
+        mask = (norm_x**2 + norm_y**2) <= 1.0
+        mask = mask.float()
+
+        # Resize if needed
+        if self.size is not None:
+            mask = (
+                torch.nn.functional.interpolate(
+                    mask.unsqueeze(0).unsqueeze(0),
+                    size=self.size,
+                    mode="bicubic",
+                    align_corners=False,
+                )
+                .squeeze(0)
+                .squeeze(0)
+            )
+            mask = mask > 0.5
+
+        return mask
 
 @config_wrapper
 class MjCambrianOpticsEyeConfig(MjCambrianEyeConfig):
@@ -418,7 +434,7 @@ class MjCambrianOpticsEye(MjCambrianEye):
 
     def __init__(self, config: MjCambrianOpticsEyeConfig, name: str):
         super().__init__(config, name)
-        print("Initializing optics eye with elliptical aperture")
+        # print("Initializing optics eye with elliptical aperture")
         self._config: MjCambrianOpticsEyeConfig
 
         self._renders_depth = "depth_array" in self._config.renderer.render_modes
@@ -429,7 +445,7 @@ class MjCambrianOpticsEye(MjCambrianEye):
         self.initialize()
 
     def initialize(self):
-        print("Initializing optics eye with elliptical aperture")
+        # print("Initializing optics eye with elliptical aperture")
         pupil_Mx, pupil_My = torch.tensor(self._config.pupil_resolution)
         assert pupil_Mx > 2 and pupil_My > 2
         assert pupil_Mx % 2 and pupil_My % 2
@@ -526,7 +542,7 @@ class MjCambrianOpticsEye(MjCambrianEye):
     ) -> torch.Tensor:
         """Overwrites the default render method to apply the depth invariant PSF to the
         image."""
-        print("Stepping optics eye with elliptical aperture")
+        # print("Stepping optics eye with elliptical aperture")
         if obs is not None:
             image, depth = obs
         else:

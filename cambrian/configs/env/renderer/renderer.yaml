@@ -52,3 +52,6 @@ scene_options:
 use_shared_context: true
 
 save_mode: WEBP
+
+# width: 1200
+# height: 800

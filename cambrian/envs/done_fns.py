@@ -75,6 +75,7 @@ def done_if_close_to_agents(
             continue
 
         if np.linalg.norm(other_agent.pos - agent.pos) < distance_threshold:
+            print(f"Agent {agent.name} is close to {other_agent.name}, terminating episode!!!!")
             return True
     return False
 

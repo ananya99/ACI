@@ -221,7 +221,7 @@ class MjCambrianEnv(ParallelEnv, Env):
         # Then, reset the agents
         obs: Dict[str, Dict[str, Any]] = {}
         for name, agent in self._agents.items():
-            print(f"Resetting agent: {name}")
+            # print(f"Resetting agent: {name}")
             obs[name] = agent.reset(self._spec)
 
         # Recompile the model/data
@@ -258,7 +258,7 @@ class MjCambrianEnv(ParallelEnv, Env):
             self._rollout.setdefault("positions", [])
             self._rollout["positions"].append([a.qpos for a in self._agents.values()])
 
-        print("obs: ", obs.keys())
+        # print("obs: ", obs.keys())
 
         return self._config.step_fn(self, obs, info)
 

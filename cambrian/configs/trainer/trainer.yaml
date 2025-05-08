@@ -8,8 +8,8 @@ defaults:
   - wrappers@wrappers.frame_stack_wrapper: frame_stack_wrapper
   - wrappers@wrappers.constant_action_wrapper: constant_action_wrapper
 
-total_timesteps: 500_000
-max_episode_steps: 500
+total_timesteps: 1000_000
+max_episode_steps: 1000
 n_envs: ${eval:'int(${num_cpus:} // 2)'}
 
 prune_fn: null

@@ -1,3 +1,16 @@
 <mujoco>
     <include file="cambrian/models/settings.xml" />
+    
+    <!-- Material definitions -->
+    <asset>
+        <!-- Prey materials (green) -->
+        <material name="agent_prey_mat" rgba="0.0 1.0 0.0 1" specular="0.5" shininess="0.5" />
+        <material name="agent_prey_top_mat" rgba="0.0 0.7 0.0 1" specular="0.5" shininess="0.5" />
+        <material name="agent_prey_direction_mat" emission="1" rgba="0.3 0.6 0.3 1" />
+        
+        <!-- Predator materials (red) -->
+        <material name="agent_predator_mat" rgba="1.0 0.0 0.0 1" specular="0.5" shininess="0.5" />
+        <material name="agent_predator_top_mat" rgba="0.7 0.0 0.0 1" specular="0.5" shininess="0.5" />
+        <material name="agent_predator_direction_mat" emission="1" rgba="0.6 0.3 0.3 1" />
+    </asset>
 </mujoco>

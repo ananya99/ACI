@@ -440,9 +440,14 @@ class MjCambrianAgent:
         if self._config.overlay_size > 0:
             rgba = self._config.overlay_color
             size = self._config.overlay_size
-            if self.has_contacts:
-                # Invert the color if there are contacts
-                rgba = (1 - rgba[0], 1 - rgba[1], 1 - rgba[2], rgba[3])
+            # if self.has_contacts:
+            #     # Make the color lighter when in contact
+            #     rgba = (
+            #         rgba[0],  # Keep red as is
+            #         min(1.0, rgba[1] + 0.5),  # Add green to make red→orange
+            #         min(1.0, rgba[2] + 0.3),  # Add some blue for brightness
+            #         rgba[3]
+            #     )
             site_overlay = create_site_overlay(self.pos.copy(), rgba, size)
             self._persistant_overlays.append(site_overlay)
 

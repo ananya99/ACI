@@ -53,13 +53,13 @@ env:
     penalize_if_has_contacts:
       _target_: cambrian.envs.reward_fns.reward_fn_has_contacts
       _partial_: true
-      reward: 0.0
+      reward: -0.1
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
 
     penalize_time:
       _target_: cambrian.envs.reward_fns.reward_fn_constant
       _partial_: true
-      reward: -0.5
+      reward: -0.05
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
 
   truncation_fn:
@@ -73,7 +73,7 @@ env:
       _partial_: true
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
       to_agents: ${glob:goal*,${oc.dict.keys:env.agents}}
-      distance_threshold: 1.0
+      distance_threshold: 2
 
 eval_env:
   # step_fn:
@@ -108,7 +108,7 @@ eval_env:
 
     penalize_if_has_contacts:
       # large negative reward for contacts
-      reward: 0.0
+      reward: -0.1
 
   truncation_fn:
     truncate_if_close_to_adversary:
@@ -121,4 +121,4 @@ eval_env:
       _partial_: true
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
       to_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
-      distance_threshold: 1.0
+      distance_threshold: 2.0

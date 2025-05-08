@@ -159,6 +159,7 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
                 flattened_obs[agent_name] = agent_obs if self.check_agent_selection(agent_name) else self.obs_mask(agent_obs)
         # print(f'############ {self.selected_agent} ############### \n')
         # print(flattened_obs)
+        print('reward:',reward)
 
         return flattened_obs, reward, terminated, truncated, info
 
@@ -505,9 +506,6 @@ def make_wrapped_env(
             # if isinstance(wrapper, MjCambrianMultiAgentEnvWrapper):
             #     print("cambrian_env.agents.keys: ", env.agents.keys())
         # check_env will call reset and set the seed to 0; call set_random_seed after
-        print(f"Checking env {env}")
-        print("observation space:", env.observation_space)
-        print("action space:", env.action_space)
         # print("cambrian_env.agents.keys: ", env.agents.keys())
         check_env(env, warn=False)
         env.unwrapped.set_random_seed(seed)

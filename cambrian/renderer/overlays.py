@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass, replace
 from enum import Enum
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, Tuple, List
 
 import mujoco as mj
 import numpy as np
@@ -11,8 +11,8 @@ import torch
 from cambrian.renderer.render_utils import resize_with_aspect_fill
 from cambrian.utils.logger import get_logger
 
-TEXT_HEIGHT = 20
-TEXT_MARGIN = 5
+TEXT_HEIGHT = 8
+TEXT_MARGIN = 6
 
 
 @dataclass(slots=True)
@@ -70,6 +70,16 @@ class MjCambrianCursor:
 
     def copy(self) -> "MjCambrianCursor":
         return replace(self)
+
+    def next(self, overlay: "MjCambrianViewerOverlay") -> "MjCambrianCursor":
+        if self.position in {
+            MjCambrianCursor.Position.BOTTOM_LEFT,
+            MjCambrianCursor.Position.BOTTOM_RIGHT,
+        }:
+            self.move(0, TEXT_HEIGHT + TEXT_MARGIN)
+        else:
+            self.move(0, -(TEXT_HEIGHT + TEXT_MARGIN))
+        return self
 
 
 class MjCambrianViewerOverlay:

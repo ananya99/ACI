@@ -14,8 +14,8 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         name: str,
         *,
         prey: str,
-        speed: float = 0.01,
-        capture_threshold: float = 1.0,
+        speed: float = 0.02,
+        capture_threshold: float = 2.0,
     ):
         super().__init__(config, name)
 
@@ -35,7 +35,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
 
         if distance < self._capture_threshold:
             # get_logger().info(f"{self.name} captured {self._prey}!")
-            return [0.0, 0.0]  
+            return [-1.0, 0.0]  
 
         target_theta = np.arctan2(target_vector[1], target_vector[0])
         theta_action = np.interp(target_theta, [-np.pi, np.pi], [-1, 1])

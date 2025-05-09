@@ -66,7 +66,6 @@ config = (
               "adversary_policy": PolicySpec(None, None, None, {}),
           },
           policy_mapping_fn=policy_mapping_fn,
-          policies_to_train=["good_policy"],
       )
 )
 
@@ -78,21 +77,13 @@ agent_rewards = []
 adv_rewards = []
 
 # Open a CSV log file
-<<<<<<< HEAD
-log_path = "./RLlib/dummy_1.csv"
-=======
-log_path = "./RLlib/dummy_log.csv"
->>>>>>> 8d5e1d3 (added RLlib)
+log_path = "./training_log.csv"
 with open(log_path, "w") as log_file:
     # Header
     log_file.write("iteration,agent_0,adversary_0\n")
 
     print("Starting training loop…")
-<<<<<<< HEAD
-    for i in range(500):
-=======
-    for i in range(200):
->>>>>>> 8d5e1d3 (added RLlib)
+    for i in range(5):
         autooh.train()
         rewards = autooh.metrics.stats["env_runners"]["agent_episode_returns_mean"]
         ar = rewards.get('agent_0', np.nan)
@@ -119,15 +110,4 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
-fig_dir = "./RLlib/figures"
-os.makedirs(fig_dir, exist_ok=True)
-
-<<<<<<< HEAD
-=======
-# save to disk
-fig_path = os.path.join(fig_dir, "dummy.png")
-plt.savefig(fig_path, dpi=300)   # you can adjust dpi/format here
-print(f"Saved plot to {fig_path}")
-
->>>>>>> 8d5e1d3 (added RLlib)
 print(f"\nLogged results to {log_path}")

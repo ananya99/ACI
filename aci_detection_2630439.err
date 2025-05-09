@@ -1,0 +1,4 @@
+/scratch/izar/nakashim/miniconda3/envs/aci2/lib/python3.12/site-packages/stable_baselines3/ppo/ppo.py:155: UserWarning: You have specified a mini-batch size of 1280, but because the `RolloutBuffer` is of size `n_steps * n_envs = 2048`, after every 1 untruncated mini-batches, there will be a truncated mini-batch of size 768
+We recommend using a `batch_size` that is a factor of `n_steps * n_envs`.
+Info: (n_steps=2048 and n_envs=1)
+  warnings.warn(

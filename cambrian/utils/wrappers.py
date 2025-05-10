@@ -112,7 +112,8 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         self._combine_terminated = combine_terminated
         self._combine_truncated = combine_truncated
 
-        agent_name = agent_name or next(iter(env.agents.keys()))
+        agent_name = list(env.agents.keys())[1]
+        print("initial agent_name: ", agent_name)
         assert agent_name in env.agents, f"agent {agent_name} not found."
         
         self._training_agent = env.agents[agent_name]
@@ -131,7 +132,7 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
     #     self._training_agent = self.env.agents[agent_name]
 
     def is_training_agent(self, agent_name):
-        print("is_training_agent: ", agent_name, self._training_agent.name)
+        # print("is_training_agent: ", agent_name, self._training_agent.name)
         return agent_name == self._training_agent.name
 
     def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
@@ -143,7 +144,7 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         #     # print("no agent models, returning previous action")
         #     return self.prev_actions[i] # previous action
         if self.is_training_agent(agent_name):
-            print("it's the training agent, returning action")
+            # print("it's the training agent, returning action")
             self.prev_actions[i] = training_agent_action
             return training_agent_action
         else:
@@ -158,18 +159,18 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
     def step(
         self, action: ActionType
     ) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
-        # action = {self._training_agent.name: action}
+        action = {self._training_agent.name: action}
         # fill actions for all the other agents
-        training_agent_action = action
-        actions = {
-            agent_name: self.fill_action(i,agent_name, training_agent_action)
-            for i, agent_name in enumerate(self.env.agents.keys())
-            if self.env.agents[agent_name].config.trainable
-        }
+        # training_agent_action = action
+        # actions = {
+        #     agent_name: self.fill_action(i,agent_name, training_agent_action)
+        #     for i, agent_name in enumerate(self.env.agents.keys())
+        #     if self.env.agents[agent_name].config.trainable
+        # }
         
-        print("actions: ", actions)
+        # print("actions: ", actions)
         
-        obs, rewards, terminateds, truncateds, infos = self.env.step(actions)
+        obs, rewards, terminateds, truncateds, infos = self.env.step(action)
         self.last_obs = obs
 
         ob = obs[self._training_agent.name]

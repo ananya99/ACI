@@ -108,21 +108,26 @@ class MjCambrianTrainer:
         for agent_name, _ in cambrian_env.observation_spaces.items():
             print("adding model:", agent_name)
             agent_models.append(self._make_model(env))
-        cambrian_env.set_agent_models(agent_models)
+        # cambrian_env.set_agent_models(agent_models)
+        
+        # Only train predator
+        training_agent_name = "agent_predator"
 
         # Start training
         total_timesteps = self._config.trainer.total_timesteps
         iterations = 1
         for i in range(iterations):
-            for agent_name, _ in cambrian_env.observation_spaces.items():
+            for j, (agent_name, _) in enumerate(cambrian_env.observation_spaces.items()):
+                if agent_name != training_agent_name:
+                    continue
                 print("training agent:", agent_name)
-                agent_models[i].learn(total_timesteps=total_timesteps, callback=callback)
+                agent_models[j].learn(total_timesteps=total_timesteps, callback=callback)
                 # cambrian_env.set_agent_models(agent_models)
                 get_logger().info("Finished training the agent: ", agent_name)
 
                 # Save the policy
                 get_logger().info(f"Saving model to {self._config.expdir}...")
-                agent_models[i].save_policy(self._config.expdir)
+                agent_models[j].save_policy(self._config.expdir)
                 get_logger().debug(f"Saved model to {self._config.expdir}...")
 
         # The finished file indicates to the evo script that the agent is done

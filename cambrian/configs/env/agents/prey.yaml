@@ -4,6 +4,7 @@ defaults:
 name: Prey
 
 use_privileged_action: false
+trainable: false
 
 overlay_color: [0, 1, 0, 1]
 

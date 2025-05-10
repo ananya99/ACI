@@ -280,7 +280,12 @@ class MjCambrianEnv(ParallelEnv, Env):
         info = self._info
 
         # First, apply the actions to the agents and step the simulation
+        # print(self.observation_spaces)
         for name, agent in self._agents.items():
+            # if name in action:
+            #     print(f"Agent action pair: {name}:{action[name].shape}")
+            # else:
+            #     print("Action for ", name, "not found in action dict. Available actions:", action.keys())
             if not agent.trainable or agent.config.use_privileged_action:
                 if not agent.trainable and name in action:
                     get_logger().warning(
@@ -302,7 +307,6 @@ class MjCambrianEnv(ParallelEnv, Env):
         obs: Dict[str, Any] = {}
         for name, agent in self._agents.items():
             obs[name] = agent.step()
-
         # Call helper methods to update the observations, rewards, terminated, and info
         obs, info = self._config.step_fn(self, obs, info)
         terminated = self._compute_terminated(info)
@@ -566,7 +570,10 @@ class MjCambrianEnv(ParallelEnv, Env):
         observation_spaces: Dict[str, spaces.Space] = {}
         for name, agent in self._agents.items():
             if agent.trainable:
+                # print("name, agent.observation_space: ", name, agent.observation_space)
                 observation_spaces[name] = agent.observation_space
+
+        # print(f"#################Observation spaces: {observation_spaces}")
         return spaces.Dict(observation_spaces)
 
     @property
@@ -683,6 +690,7 @@ if __name__ == "__main__":
         env.spec.save(config.expdir / "env.xml")
 
         action = {name: [-1.0, -0.0] for name, a in env.agents.items() if a.trainable}
+        # print("Action in run_renderer: ", action)
         env.step(action.copy())
 
         if "human" in config.env.renderer.render_modes:

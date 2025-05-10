@@ -84,6 +84,9 @@ class MjCambrianAgentConfig(HydraContainerConfig):
 
     instance: Callable[[Self, str, int], "MjCambrianAgent"]
 
+    # The name of the agent, optional.
+    name: str = "Agent"
+
     trainable: bool
     use_privileged_action: bool
     overlay_color: Tuple[float, float, float, float]
@@ -268,6 +271,7 @@ class MjCambrianAgent:
         """Place the eyes on the agent."""
         for name, eye_config in self._config.eyes.items():
             self._eyes[name] = eye_config.instance(eye_config, f"{self._name}_{name}")
+        # print(self._eyes.values())
 
     def generate_xml(self) -> MjCambrianXML:
         """Generates the xml for the agent. Will generate the xml from the model file

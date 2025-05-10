@@ -303,6 +303,51 @@ def reward_fn_action(
     return apply_reward_fn(env, agent, reward_fn=calc_reward, **kwargs)
 
 
+def reward_fn_move_towards_prey(
+    env: MjCambrianEnv,
+    agent: MjCambrianAgent,
+    terminated: bool,
+    truncated: bool,
+    info: Dict[str, Any],
+    *,
+    distance_threshold: float = 1.0,
+    reward_scale: float = 1.0,
+    from_agents: Optional[List[str]] = None,
+    to_agents: Optional[List[str]] = None,
+    **kwargs,
+) -> float:
+    def calc_reward():
+        # print(f"called reward_fn_move_towards_prey!!!!")
+        accumulated_reward = 0
+        for agent_name, agent in env.agents.items():
+            if from_agents is not None and agent_name not in from_agents:
+                continue
+
+            for other_agent_name, other_agent in env.agents.items():
+                if to_agents is not None and other_agent_name not in to_agents:
+                    continue
+                if agent_name == other_agent_name:
+                    continue
+
+                current_distance = np.linalg.norm(agent.pos - other_agent.pos)
+                # if current_distance < distance_threshold:
+                #     return 10
+                prev_distance_key = f"{agent_name}_to_{other_agent_name}_distance"
+                if prev_distance_key not in info:
+                    info[prev_distance_key] = current_distance
+                    continue
+                
+                prev_distance = info[prev_distance_key]
+                distance_change = prev_distance - current_distance
+                accumulated_reward += distance_change * reward_scale
+                info[prev_distance_key] = current_distance
+                
+        # print(f"accumulated_reward: {accumulated_reward}")
+        return accumulated_reward
+
+    return apply_reward_fn(env, agent, reward_fn=calc_reward, **kwargs)
+
+
 def reward_combined(
     env: MjCambrianEnv,
     agent: MjCambrianAgent,

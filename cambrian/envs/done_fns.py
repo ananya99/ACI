@@ -74,7 +74,8 @@ def done_if_close_to_agents(
         if not agent_selected(other_agent, to_agents) or other_agent.name == agent.name:
             continue
 
-        if np.linalg.norm(other_agent.pos - agent.pos) < distance_threshold:
+        distance = np.linalg.norm(other_agent.pos - agent.pos)
+        if distance < distance_threshold:
             return True
     return False
 

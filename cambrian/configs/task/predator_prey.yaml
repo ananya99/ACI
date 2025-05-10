@@ -26,14 +26,14 @@ env:
       scale: 2.0
       agent_id_map:
         default: ${glob:agent*,${oc.dict.keys:env.agents}}
-        O: ${glob:goal*|adversary*,${oc.dict.keys:env.agents}}
+        O: ${glob:agent*,${oc.dict.keys:env.agents}}
 
   reward_fn:
     reward_if_done:
       _target_: cambrian.envs.reward_fns.reward_fn_done
       _partial_: true
       scale_by_quickness: false
-      termination_reward: 20.0
+      termination_reward: 50.0
       truncation_reward: ${eval:'-${.termination_reward}'}
       disable_on_max_episode_steps: true
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
@@ -43,6 +43,14 @@ env:
       _partial_: true
       reward: -0.05
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
+
+    reward_if_move_towards_prey:
+      _target_: cambrian.envs.reward_fns.reward_fn_move_towards_prey
+      _partial_: true
+      for_agents: ${glob:agent_predator*,${oc.dict.keys:env.agents}}
+      to_agents: ${glob:agent_prey*,${oc.dict.keys:env.agents}}
+      reward_scale: 0.01
+      distance_threshold: 4.0
 
     penalize_time:
       _target_: cambrian.envs.reward_fns.reward_fn_constant
@@ -60,5 +68,5 @@ env:
       _target_: cambrian.envs.done_fns.done_if_close_to_agents
       _partial_: true
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
-      to_agents: ${glob:goal*,${oc.dict.keys:env.agents}}
+      to_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
       distance_threshold: 2.0

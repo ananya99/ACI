@@ -146,21 +146,65 @@ class MjCambrianMazeEnv(MjCambrianEnv):
         # MjCambrianEnv constructor
         self._maze: MjCambrianMaze = None
         self._maze_store = MjCambrianMazeStore(config.mazes, config.maze_selection_fn)
-        self._agent_models: []
+        self._agent_models: List[MjCambrianModel] = []
+        self._model_params: List[Dict] = []
         self._training_agent: str = None
+        self._iteration: int = 0
 
         super().__init__(config, **kwargs)
 
     def set_agent_models(self, agent_models):
+        print("setting agent models: ", agent_models)
         self._agent_models = agent_models
 
-    def set_training_agent(self, agent_name: str):
-        """Sets which agent is currently being trained.
+    def set_model_params(self, model_params):
+        """Sets the model parameters and creates models from them.
         
         Args:
-            agent_name (str): Name of the agent to train.
+            model_params (List[Dict]): List of model parameters.
         """
-        self._training_agent = agent_name
+        self._model_params = model_params
+        # Create models from parameters
+        self._agent_models = []
+        for params in model_params:
+            # Create a new model with the same parameters
+            model = MjCambrianModel(
+                policy=params['policy_kwargs']['policy'],
+                env=None,  # We'll set this later
+                learning_rate=params['learning_rate'],
+                n_steps=params['n_steps'],
+                batch_size=params['batch_size'],
+                n_epochs=params['n_epochs'],
+                gamma=params['gamma'],
+                gae_lambda=params['gae_lambda'],
+                clip_range=params['clip_range'],
+                clip_range_vf=params['clip_range_vf'],
+                ent_coef=params['ent_coef'],
+                vf_coef=params['vf_coef'],
+                max_grad_norm=params['max_grad_norm'],
+                use_sde=params['use_sde'],
+                sde_sample_freq=params['sde_sample_freq'],
+                target_kl=params['target_kl'],
+                tensorboard_log=params['tensorboard_log'],
+                create_eval_env=params['create_eval_env'],
+                policy_kwargs=params['policy_kwargs'],
+                verbose=params['verbose'],
+                seed=params['seed'],
+                device=params['device'],
+                _init_setup_model=params['_init_setup_model'],
+            )
+            # Load the policy state dict
+            model.policy.load_state_dict(params['policy_state_dict'])
+            self._agent_models.append(model)
+
+    def set_training_agent(self, agent_name: str):
+        self._training_agent = self.agents[agent_name]
+        
+    def get_training_agent_iter(self):
+        return self._training_agent.name + "_" + str(self._iteration)
+
+    def set_iteration(self, iteration: int):
+        self._iteration = iteration
 
     @property
     def agent_models(self):
@@ -170,6 +214,11 @@ class MjCambrianMazeEnv(MjCambrianEnv):
     def training_agent(self) -> str:
         """Returns the name of the agent currently being trained."""
         return self._training_agent
+
+    @property
+    def iteration(self) -> int:
+        """Returns the current training iteration."""
+        return self._iteration
 
     def generate_xml(self) -> MjCambrianXML:
         """Generates the xml for the environment."""

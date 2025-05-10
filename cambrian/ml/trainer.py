@@ -49,6 +49,7 @@ class MjCambrianTrainerConfig(HydraContainerConfig):
     """
 
     total_timesteps: int
+    iterations: int
     max_episode_steps: int
     n_envs: int
 
@@ -103,27 +104,49 @@ class MjCambrianTrainer:
         with open(self._config.expdir / "compiled_env.xml", "w") as f:
             f.write(cambrian_env.spec.to_xml())
 
-        agent_models =[]
+        agent_models = []
         print("env: ", cambrian_env)
         for agent_name, _ in cambrian_env.observation_spaces.items():
             print("adding model:", agent_name)
             agent_models.append(self._make_model(env))
-        cambrian_env.set_agent_models(agent_models)
+            
+        # Save models to files and pass file paths to environments
+        model_paths = []
+        for i, model in enumerate(agent_models):
+            model_path = self._config.expdir / f"model_{i}"
+            model_path.mkdir(parents=True, exist_ok=True)
+            model.save_policy(model_path)
+            model_paths.append(str(model_path))
+            
+        # set the agent models in all the envs in the vector env
+        if isinstance(env, DummyVecEnv):
+            for env in env.envs:
+                env.unwrapped.set_agent_models(agent_models)
+        else:  # SubprocVecEnv
+            # Pass model paths instead of parameters
+            env.env_method("set_model_paths", model_paths)
 
         # Start training
         total_timesteps = self._config.trainer.total_timesteps
-        iterations = 4
+        iterations = self._config.trainer.iterations
         for i in range(iterations):
-            for agent_name, _ in cambrian_env.observation_spaces.items():
+            print("!!!!!!!!!!!!!!!!!!!Training iteration:", i, "....")
+            for j, (agent_name, _) in enumerate(cambrian_env.observation_spaces.items()):
                 print("training agent:", agent_name)
-                cambrian_env.set_training_agent(agent_name)
-                agent_models[i].learn(total_timesteps=total_timesteps, callback=callback)
-                cambrian_env.set_agent_models(agent_models)
-                get_logger().info("Finished training the agent: ", agent_name)
+                # set the training agent in all the envs in the vector env
+                if isinstance(env, DummyVecEnv):
+                    for env in env.envs:
+                        env.unwrapped.set_training_agent(agent_name)
+                        env.unwrapped.set_iteration(i)
+                else:  # SubprocVecEnv
+                    env.env_method("set_training_agent", agent_name)
+                    env.env_method("set_iteration", i)
+                agent_models[j].learn(total_timesteps=total_timesteps, callback=callback)
+                get_logger().info("Finished training the agent:", agent_name, "....")
 
                 # Save the policy
                 get_logger().info(f"Saving model to {self._config.expdir}...")
-                agent_models[i].save_policy(self._config.expdir)
+                agent_models[j].save_policy(self._config.expdir / f"model_{j}")
                 get_logger().debug(f"Saved model to {self._config.expdir}...")
 
         # The finished file indicates to the evo script that the agent is done
@@ -151,7 +174,7 @@ class MjCambrianTrainer:
 
         eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
-        model = self._make_model(eval_env)
+        model = self.make_model(eval_env)
         if load_if_exists and (self._config.expdir / "best_model.zip").exists():
             get_logger().info("Loading best model...")
             model = model.load(self._config.expdir / "best_model")
@@ -237,6 +260,6 @@ class MjCambrianTrainer:
 
         return CallbackList(callbacks)
 
-    def _make_model(self, env: VecEnv) -> MjCambrianModel:
+    def make_model(self, env: VecEnv) -> MjCambrianModel:
         """This method creates the model."""
         return self._config.trainer.model(env=env)

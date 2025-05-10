@@ -8,6 +8,7 @@ import numpy as np
 from gymnasium.wrappers.numpy_to_torch import numpy_to_torch, torch_to_numpy
 from stable_baselines3.common.env_checker import check_env
 from itertools import cycle
+import torch
 
 from cambrian.envs import MjCambrianEnv, MjCambrianEnvConfig
 from cambrian.utils import device, is_integer
@@ -118,14 +119,34 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         
         self.last_obs = None
         self.agent_models = [] # [predator_model, prey_model]
+        self.prev_actions = np.array([[-1.0,0.0] for _ in range(len(env.agents))])
+        self.iteration = 0
 
     def set_agent_models(self, agent_models):
+        print("setting agent models: ", agent_models)
         self.agent_models = agent_models
+        
+    def set_model_paths(self, model_paths):
+        """Load models from file paths instead of receiving parameters."""
+        print("loading agent models from paths: ", model_paths)
+        # Initialize agent_models list with None values if it's empty
+        if len(self.agent_models) == 0:
+            self.agent_models = [None] * len(model_paths)
+        
+        for i, model_path in enumerate(model_paths):
+            if self.agent_models[i] is None:
+                from cambrian.ml.model import MjCambrianModel
+                self.agent_models[i] = MjCambrianModel.load(model_path)
+
+    def set_iteration(self, iteration):
+        self.iteration = iteration
 
     def set_training_agent(self, agent_name):
+        print("setting training agent: ", agent_name)
         self._training_agent = self.env.agents[agent_name]
 
     def is_training_agent(self, agent_name):
+        print("is training agent: ", agent_name, self._training_agent.name)
         return agent_name == self._training_agent.name
 
     def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
@@ -134,14 +155,17 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
     
     def fill_action(self,i,agent_name, training_agent_action):
         if len(self.agent_models) == 0:
-            return self.action_space.sample() # random action
+            print("no agent models, returning previous action")
+            return self.prev_actions[i] # random action
         if self.is_training_agent(agent_name):
+            self.prev_actions[i] = training_agent_action
             return training_agent_action
         else:
             other_agent_model = self.agent_models[i]
             other_agent_obs = self.last_obs.copy()
             other_agent_obs[agent_name] = self.obs_mask(other_agent_obs[agent_name])
             other_agent_action, _ = other_agent_model.predict(other_agent_obs)
+            self.prev_actions[i] = other_agent_action
             return other_agent_action
 
     def step(
@@ -155,6 +179,8 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
             for i, agent_name in enumerate(self.env.agents.keys())
             if self.env.agents[agent_name].config.trainable
         }
+        
+        # print("######### actions: ", actions)
         
         obs, rewards, terminateds, truncateds, infos = self.env.step(actions)
         self.last_obs = obs
@@ -357,7 +383,7 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
         return gym.spaces.Box(
             low=low, high=high, shape=shape, dtype=first_agent_action_space.dtype
         )
-    
+
 
 class MjCambrianPettingZooEnvWrapper(gym.Wrapper):
     """Wrapper around the MjCambrianEnv that acts as if there is a single agent, where

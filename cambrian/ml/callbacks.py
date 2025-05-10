@@ -144,7 +144,8 @@ class MjCambrianEvalCallback(EvalCallback):
         if self.render:
             # Save the visualization
             filename = Path(f"vis_{self.n_evals}")
-            env.save(self.log_path / filename)
+            agent_iter = env.get_training_agent_iter()
+            env.save(self.log_path / agent_iter /filename)
             env.record(False)
 
         if self.render:

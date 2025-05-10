@@ -83,8 +83,67 @@ class MjCambrianSingleAgentEnvWrapper(gym.Wrapper):
             truncated = truncated[self._agent.name]
 
         return obs, reward, terminated, truncated, info
-    
+
 class MjCambrianAECEnvWrapper(gym.Wrapper):
+    def __init__(self, env: MjCambrianEnv):
+        super().__init__(env)
+        self.env: MjCambrianEnv
+        self.agents = cycle(env.agents)
+        self.selected_agent = None
+        self.iter_agent()
+        self.iter_agent()
+        self.stationary_action = np.array([-1.0,-1.0])
+        self._agent = env.agents[self.selected_agent]
+        self.action_space = self._agent.action_space
+        self.observation_space = self._agent.observation_space
+    
+    def check_agent_selection(self,agent_name):
+        return agent_name == self.selected_agent
+
+    def obs_mask(self, obj):
+        if isinstance(obj,list) :
+            for i, x in enumerate(obj):
+                obj[i] = x*0
+        else:
+            obj = obj * 0
+        return obj
+
+    def action_mask(self, action, i , agent_name):
+        if self.check_agent_selection(agent_name):
+            return action
+        else:
+            return self.stationary_action
+
+    def iter_agent(self):
+        self.selected_agent = next(self.agents)
+
+    def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
+        obs, info = self.env.reset(*args, **kwargs)
+        # Flatten the observations
+        # self.iter_agent()
+        return obs[self.selected_agent], info
+
+    def step(
+        self, action: ActionType
+    ) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
+        # Convert the action back to a dict
+        action = {
+            agent_name: self.action_mask(action,i,agent_name)
+            for i, agent_name in enumerate(self.env.agents.keys())
+            if self.env.agents[agent_name].config.trainable
+        }
+
+        obs, reward, terminated, truncated, info = self.env.step(action)
+
+        # Accumulate the rewards, terminated, and truncated
+        reward = reward[self.selected_agent]
+        terminated = terminated[self.selected_agent]
+        truncated = truncated[self.selected_agent]
+
+        return obs[self.selected_agent], reward, terminated, truncated, info
+
+
+class MjCambrianAllAECEnvWrapper(gym.Wrapper):
     def __init__(self, env: MjCambrianEnv):
         super().__init__(env)
         self.env: MjCambrianEnv
@@ -240,7 +299,7 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
         return gym.spaces.Box(
             low=low, high=high, shape=shape, dtype=first_agent_action_space.dtype
         )
-    
+
 
 class MjCambrianPettingZooEnvWrapper(gym.Wrapper):
     """Wrapper around the MjCambrianEnv that acts as if there is a single agent, where

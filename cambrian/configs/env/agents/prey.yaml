@@ -1,5 +1,5 @@
 defaults:
-  - point
+  - object_sphere_textured_goal
 
 name: Prey
 

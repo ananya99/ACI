@@ -45,7 +45,7 @@ env:
       _target_: cambrian.envs.reward_fns.reward_fn_done
       _partial_: true
       scale_by_quickness: false
-      termination_reward: 1.0
+      termination_reward: 100.0
       truncation_reward: ${eval:'-${.termination_reward}'}
       disable_on_max_episode_steps: true
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
@@ -59,7 +59,7 @@ env:
     penalize_time:
       _target_: cambrian.envs.reward_fns.reward_fn_constant
       _partial_: true
-      reward: 0.00
+      reward: -0.02
       for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
 
   truncation_fn:
@@ -108,7 +108,7 @@ eval_env:
 
     penalize_if_has_contacts:
       # large negative reward for contacts
-      reward: 0.0
+      reward: -1.0
 
   truncation_fn:
     truncate_if_close_to_adversary:

@@ -11,7 +11,7 @@ import torch
 from cambrian.renderer.render_utils import resize_with_aspect_fill
 from cambrian.utils.logger import get_logger
 
-TEXT_HEIGHT = 20
+TEXT_HEIGHT = 12
 TEXT_MARGIN = 5
 
 

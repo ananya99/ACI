@@ -1,0 +1,64 @@
+# @package _global_
+
+defaults:
+  # Use one maze for the time being
+  - /env/mazes@env.mazes.maze: OPEN
+
+  # Use the maze_task config as the base
+  - maze_task
+
+  # Define one point agent with a single eye
+  - /env/agents@env.agents.agent_prey: prey
+  - /env/agents/eyes@env.agents.agent_prey.eyes.eye: multi_eye
+
+  - /env/agents@env.agents.agent_predator: predator
+  - /env/agents/eyes@env.agents.agent_predator.eyes.eye: multi_eye
+
+custom:
+  # This sets both the frequency of the texture of the goal and adversary
+  # The goal and adversary textures are the same, just rotated 90 degrees relative
+  # to one another
+  frequency: 8
+
+env:
+  mazes:
+    maze:
+      scale: 2.0
+      agent_id_map:
+        default: ${glob:agent*,${oc.dict.keys:env.agents}}
+        O: ${glob:goal*|adversary*,${oc.dict.keys:env.agents}}
+
+  reward_fn:
+    reward_if_done:
+      _target_: cambrian.envs.reward_fns.reward_fn_done
+      _partial_: true
+      scale_by_quickness: false
+      termination_reward: 20.0
+      truncation_reward: ${eval:'-${.termination_reward}'}
+      disable_on_max_episode_steps: true
+      for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
+
+    penalize_if_has_contacts:
+      _target_: cambrian.envs.reward_fns.reward_fn_has_contacts
+      _partial_: true
+      reward: -0.05
+      for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
+
+    penalize_time:
+      _target_: cambrian.envs.reward_fns.reward_fn_constant
+      _partial_: true
+      reward: -0.01
+      for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
+
+  truncation_fn:
+    truncate_if_close_to_adversary:
+      _target_: cambrian.envs.done_fns.done_if_exceeds_max_episode_steps
+      _partial_: true
+
+  termination_fn:
+    terminate_if_close_to_goal:
+      _target_: cambrian.envs.done_fns.done_if_close_to_agents
+      _partial_: true
+      for_agents: ${glob:agent*,${oc.dict.keys:env.agents}}
+      to_agents: ${glob:goal*,${oc.dict.keys:env.agents}}
+      distance_threshold: 2.0

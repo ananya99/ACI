@@ -146,8 +146,26 @@ class MjCambrianMazeEnv(MjCambrianEnv):
         # MjCambrianEnv constructor
         self._maze: MjCambrianMaze = None
         self._maze_store = MjCambrianMazeStore(config.mazes, config.maze_selection_fn)
+        self._agent_models: List[MjCambrianModel] = []
+        self._training_agent: None
 
         super().__init__(config, **kwargs)
+
+    # def set_agent_models(self, agent_models):
+    #     # print("setting agent models: ", agent_models)
+    #     self._agent_models = agent_models
+
+    # def set_training_agent(self, agent_name: str):
+    #     self._training_agent = self.agents[agent_name]
+
+    @property
+    def agent_models(self):
+        return self._agent_models
+
+    @property
+    def training_agent(self) -> str:
+        """Returns the name of the agent currently being trained."""
+        return self._training_agent
 
     def generate_xml(self) -> MjCambrianXML:
         """Generates the xml for the environment."""

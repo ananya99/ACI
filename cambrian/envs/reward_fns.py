@@ -101,6 +101,9 @@ def reward_fn_done(
             reward += termination_reward
         if truncated:
             reward += truncation_reward
+        # if(terminated):
+        #     print('printing inside calc_reward',terminated,truncated)
+        #     print(reward, termination_reward, truncation_reward)
         return reward
 
     return apply_reward_fn(
@@ -320,7 +323,9 @@ def reward_combined(
     accumulated_reward = 0
     for name, fn in reward_fns.items():
         reward = fn(env, agent, terminated, truncated, info)
-
+        # if name == 'reward_if_done' and terminated:
+        #     print(reward)
+        #     print(terminated,truncated)
         if name in exclusive_fns and reward != 0:
             return reward
         accumulated_reward += reward

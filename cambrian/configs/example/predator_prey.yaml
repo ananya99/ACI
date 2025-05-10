@@ -1,0 +1,20 @@
+# @package _global_
+
+defaults:
+  - example
+  - override /task: predator_prey
+
+env:
+  agents:
+    agent_predator:
+      eyes:
+        eye:
+          resolution: [20, 20]
+          num_eyes: [1, 2]
+          lon_range: [-30, 30]
+    agent_prey:
+      eyes:
+        eye:
+          resolution: [20, 20]
+          num_eyes: [1, 2]
+          lon_range: [-30, 30]

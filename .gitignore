@@ -8,6 +8,7 @@
 .bash_history
 _version.py
 outputs/
+wandb/
 
 # Data files
 logs/
@@ -157,9 +158,9 @@ celerybeat.pid
 # Environments
 .env
 .venv
-/env/
+# /env/
 venv/
-ENV/
+# ENV/
 env.bak/
 venv.bak/
 
@@ -196,3 +197,4 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+wandb/latest-run

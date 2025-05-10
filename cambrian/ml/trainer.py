@@ -112,13 +112,12 @@ class MjCambrianTrainer:
 
         # Start training
         total_timesteps = self._config.trainer.total_timesteps
-        iterations = 4
+        iterations = 1
         for i in range(iterations):
             for agent_name, _ in cambrian_env.observation_spaces.items():
                 print("training agent:", agent_name)
-                cambrian_env.set_training_agent(agent_name)
                 agent_models[i].learn(total_timesteps=total_timesteps, callback=callback)
-                cambrian_env.set_agent_models(agent_models)
+                # cambrian_env.set_agent_models(agent_models)
                 get_logger().info("Finished training the agent: ", agent_name)
 
                 # Save the policy

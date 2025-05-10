@@ -372,20 +372,27 @@ class MjCambrianMaze:
     def _reset_wall_textures(self, spec: MjCambrianSpec):
         """Helper method to reset the wall textures.
 
-        All walls will have the same texture since they're now a single geom.
+        All like-labelled walls will have the same texture. Their textures will be
+        randomly selected from their respective texture lists.
         """
-        # Generate a random texture for all walls
-        texture_id = self._wall_textures[0] if self._wall_textures else "default"
-        texture_name = np.random.choice(list(self._config.wall_texture_map[texture_id]))
-        
-        # Update the wall geom material
-        wall_name = f"wall_{self._name}"
-        geom_id = spec.get_geom_id(wall_name)
-        assert geom_id != -1, f"`{wall_name}` geom not found"
 
-        # Update the geom material
-        material_name = f"wall_{self._name}_{texture_id}_{texture_name}_mat"
-        spec.geoms[geom_id].material = material_name
+        # First, generate the texture_id -> texture_name mapping
+        texture_map: Dict[str, str] = {}
+        for t in self._wall_textures:
+            if t not in texture_map:
+                texture_map[t] = np.random.choice(
+                    list(self._config.wall_texture_map[t])
+                )
+
+        # Now, update the wall textures
+        for i, t in zip(range(len(self._wall_locations)), self._wall_textures):
+            wall_name = f"wall_{self._name}_{i}"
+            geom_id = spec.get_geom_id(wall_name)
+            assert geom_id != -1, f"`{wall_name}` geom not found"
+
+            # Update the geom material
+            material_name = f"wall_{self._name}_{t}_{texture_map[t]}_mat"
+            spec.geoms[geom_id].material = material_name
 
     # ==================
 

@@ -98,6 +98,7 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         self,
         env: MjCambrianEnv,
         *,
+        pretrained_model_path: str = None,
         agent_name: Optional[str] = None,
         combine_rewards: bool = True,
         combine_terminated: bool = True,
@@ -105,6 +106,8 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
     ):
         super().__init__(env)
 
+        self.pretrained_model_path = pretrained_model_path
+        print("pretrained_model_path: ", pretrained_model_path)
         self._combine_rewards = combine_rewards
         self._combine_terminated = combine_terminated
         self._combine_truncated = combine_truncated
@@ -118,14 +121,14 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         
         self.last_obs = None
         self._agent_models = env.agent_models
-        self.prev_actions = np.array([[-1.0,0.0] for _ in range(len(env.agents))])
+        self.prev_actions = np.array([[-1.0, 0.0] for _ in range(len(env.agents))])
 
     # def set_agent_models(self, agent_models):
     #     print("setting agent models: ", agent_models)
     #     self.agent_models = agent_models
 
-    def set_training_agent(self, agent_name):
-        self._training_agent = self.env.agents[agent_name]
+    # def set_training_agent(self, agent_name):
+    #     self._training_agent = self.env.agents[agent_name]
 
     def is_training_agent(self, agent_name):
         print("is_training_agent: ", agent_name, self._training_agent.name)
@@ -136,19 +139,21 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         return obs[self._training_agent.name], info[self._training_agent.name]
     
     def fill_action(self,i,agent_name, training_agent_action):
-        if len(self._agent_models) == 0:
-            # print("no agent models, returning previous action")
-            return self.prev_actions[i] # previous action
+        # if len(self._agent_models) == 0:
+        #     # print("no agent models, returning previous action")
+        #     return self.prev_actions[i] # previous action
         if self.is_training_agent(agent_name):
             print("it's the training agent, returning action")
             self.prev_actions[i] = training_agent_action
             return training_agent_action
         else:
-            other_agent_model = self._agent_models[i]
-            other_agent_obs = self.last_obs.copy()
-            other_agent_action, _ = other_agent_model.predict(other_agent_obs[agent_name])
-            self.prev_actions[i] = other_agent_action
-            return other_agent_action
+            return self.prev_actions[i]
+        # else:
+        #     other_agent_model = self._agent_models[i]
+        #     other_agent_obs = self.last_obs.copy()
+        #     other_agent_action, _ = other_agent_model.predict(other_agent_obs[agent_name])
+        #     self.prev_actions[i] = other_agent_action
+        #     return other_agent_action
 
     def step(
         self, action: ActionType

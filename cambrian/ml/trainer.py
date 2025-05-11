@@ -95,7 +95,9 @@ class MjCambrianTrainer:
             return -float("inf")
 
         # Setup the environment, model, and callbacks agent_model_config=self._config.trainer
-        env = self._make_env(self._config.env, self._config.trainer.n_envs)
+        env = self._make_env(self._config.env, self._config.trainer.n_envs, training_agent_name="agent_predator")
+        env2 = self._make_env(self._config.env, self._config.trainer.n_envs, training_agent_name="agent_prey")
+        envs = [env, env2]
         eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
         callback = self._make_callback(eval_env)
 
@@ -107,7 +109,7 @@ class MjCambrianTrainer:
         agent_names = list(cambrian_eval_env.observation_spaces.keys())
 
         agent_models = {}
-        for agent_name in agent_names:
+        for i, agent_name in enumerate(agent_names):
             model_path = os.path.join(self._config.expdir, agent_name+'_model')
             # check if model already exists
             if os.path.exists(model_path):
@@ -115,23 +117,33 @@ class MjCambrianTrainer:
                 agent_models[agent_name] = MjCambrianModel.load(model_path)
                 print("loaded model for agent:", agent_name, "at", model_path)
                 continue
-            agent_models[agent_name] = self._make_model(env)
+            envs[i].env_method("set_training_agent", agent_name)
+            agent_models[agent_name] = self._make_model(envs[i])
+            print(envs[i].env_method("get_observation_space"))
+            print("119 obs space", agent_models[agent_name].observation_space)
             agent_models[agent_name].save(model_path)
             print("created and saved initial model for agent:", agent_name, "at", model_path)
             # print("saved initial model for agent:", agent_name, 'at', )
             # agent_models[agent_name].save_policy(self._config.expdir, agent_name+'_policy')
             # print("saved initial policy for agent:", agent_name)
-        env.run_env_method('set_agent_models', agent_models)
+        # final_wrapped_env = env.envs[0]
+        # final_wrapped_env.set_agent_model_config(self._config.trainer)
+        env.env_method("set_agent_model_config", self._config.trainer)
+        # cambrian_env.set_agent_models(agent_models)
         
         # Start training
         iterations = 2
         total_timesteps = self._config.trainer.total_timesteps // 100
         
         for i in range(iterations):
-            for agent_name in agent_names:
-                print("training agent:", agent_name)
+            for j, agent_name in enumerate(agent_names):
+                training_agent_name = agent_name
+                print("training agent:", training_agent_name)
+                envs[j].env_method("set_training_agent", training_agent_name)
                 agent_models[agent_name].learn(total_timesteps=total_timesteps, callback=callback)
                 # cambrian_env.set_agent_models(agent_models)
+                
+                envs[j].env_method("set_agent_model_config", self._config.trainer)
                 get_logger().info("Finished training the agent: ", agent_name)
 
                 # Update the policy
@@ -262,6 +274,7 @@ class MjCambrianTrainer:
         *,
         monitor: str | None = "monitor.csv",
         agent_model_config = None,
+        training_agent_name = None,
     ) -> VecEnv:
         assert n_envs > 0, f"n_envs must be > 0, got {n_envs}."
 
@@ -275,6 +288,7 @@ class MjCambrianTrainer:
                 wrappers=wrappers,
                 seed=self._calc_seed(i),
                 agent_model_config=agent_model_config,
+                training_agent_name=training_agent_name,
             )
             envs.append(wrapped_env)
 

@@ -1,0 +1,28 @@
+<mujoco name="maze">
+    <asset>
+        <material name="floor_mat_${parent:xml}" rgba="0.1 0.1 0.1 1.0" shininess="0.0" specular="0.0" />
+        <material name="snow" rgba="1 1 1 1" specular="0.3" shininess="10" reflectance="0.1"/>
+        <material name="bark" rgba="0.55 0.27 0.07 1" />
+        <material name="leaves" rgba="0.0 0.5 0.0 1" />
+        <material name="grass" rgba="0.1 0.6 0.1 1" />
+    </asset>
+    <default>
+        <default class="maze_wall_${parent:xml}">
+            <!-- <geom type="box" gap="0.05" margin="0.1" group="3" condim="1" /> -->
+        </default>
+    </default>
+    <worldbody>
+        <geom name="floor_${parent:xml}" type="plane" size="10 10 0.1" material="grass" rgba="0.1 0.6 0.1 1" pos="0 0 0"
+            condim="1" group="1" />
+    </worldbody>
+    <!-- <worldbody>
+      <body name="tree_-5.082004386827334_7.782059042044757" pos="-5.082004386827334 7.782059042044757 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_7.377812232161233_1.1016359498314703" pos="7.377812232161233 1.1016359498314703 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+    </worldbody> -->
+</mujoco>

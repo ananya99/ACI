@@ -1,0 +1,41 @@
+<mujoco>
+  <option timestep="0.01"/>
+  
+  <!-- Assets -->
+  <asset>
+    <!-- Named texture with checker pattern -->
+    <texture name="ground_tex" type="2d" builtin="checker" width="512" height="512"/>
+    
+    <!-- Material using the named texture -->
+    <material name="ground_mat" texture="ground_tex" texrepeat="8 8"/>
+    
+    <!-- Height field for rocky terrain -->
+    <hfield name="rocky_terrain" 
+            size="10 10 1 0.2" 
+            nrow="2" 
+            ncol="2" 
+            elevation="0 0 0 0"/> <!-- Random height samples -->
+  </asset>
+
+  <worldbody>
+    <!-- Terrain using named hfield and material -->
+    <geom name="ground" 
+          type="hfield" 
+          hfield="rocky_terrain" 
+          material="ground_mat" 
+          pos="0 0 0" 
+          friction="1.0 0.5 0.1"/>
+
+    <!-- Predator -->
+    <body name="predator" pos="0 0 0.5">
+      <joint type="free"/>
+      <geom type="capsule" size="0.1 0.2" rgba="1 0 0 1"/>
+    </body>
+
+    <!-- Prey -->
+    <body name="prey" pos="2 0 0.5">
+      <joint type="free"/>
+      <geom type="capsule" size="0.1 0.2" rgba="0 0 1 1"/>
+    </body>
+  </worldbody>
+</mujoco>

@@ -69,6 +69,8 @@ def reward_fn_constant(
     **kwargs,
 ) -> float:
     """Returns a constant reward."""
+    if agent.name == 'agent_prey':
+        reward = -reward
     return apply_reward_fn(env, agent, reward_fn=lambda: reward, **kwargs)
 
 
@@ -97,10 +99,16 @@ def reward_fn_done(
 
     def calc_reward():
         reward = 0.0
-        if terminated:
-            reward += termination_reward
-        if truncated:
-            reward += truncation_reward
+        if agent.name == 'agent_prey':
+            if terminated:
+                reward -= termination_reward
+            if truncated:
+                reward -= truncation_reward
+        else:
+            if terminated:
+                reward += termination_reward
+            if truncated:
+                reward += truncation_reward
         # if(terminated):
         #     print('printing inside calc_reward',terminated,truncated)
         #     print(reward, termination_reward, truncation_reward)

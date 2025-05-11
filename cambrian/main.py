@@ -15,12 +15,14 @@ def main():
     parser = argparse.ArgumentParser()
     action = parser.add_mutually_exclusive_group(required=True)
     action.add_argument("--train", action="store_true", help="Train the model")
+    action.add_argument("--trainAEC", action="store_true", help="Train the model")
     action.add_argument("--eval", action="store_true", help="Evaluate the model")
 
     def _main(
         config: MjCambrianConfig,
         *,
         train: bool,
+        trainAEC: bool,
         eval: bool,
     ) -> float:
         """This method will return a float if training. The float represents the
@@ -30,6 +32,8 @@ def main():
 
         if train:
             return runner.train()
+        elif trainAEC:
+            return runner.trainAEC()
         elif eval:
             return runner.eval()
 

@@ -8,11 +8,12 @@ defaults:
   - maze_task
 
   # Define one point agent with a single eye
-  - /env/agents@env.agents.agent_prey: prey
-  - /env/agents/eyes@env.agents.agent_prey.eyes.eye: multi_eye
 
   - /env/agents@env.agents.agent_predator: predator
   - /env/agents/eyes@env.agents.agent_predator.eyes.eye: multi_eye
+
+  - /env/agents@env.agents.agent_prey: prey
+  - /env/agents/eyes@env.agents.agent_prey.eyes.eye: multi_eye
 
 custom:
   # This sets both the frequency of the texture of the goal and adversary

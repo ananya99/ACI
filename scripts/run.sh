@@ -13,4 +13,4 @@ source /work/cvlab/students/bhagavan/ACI/.aci/bin/activate
 echo "Python binary: $(which python)"
 echo "Python version: $(python --version)"
 
-MUJOCO_GL=egl python3 cambrian/main.py --train example=detection
+MUJOCO_GL=egl python3 cambrian/main.py --train example=detection env/agents/eyes@env.agents.agent_predator.eyes.eye.single_eye=optics env.agents.agent_predator.eyes.eye.single_eye.aperture.radius=0.75 evo=evo +exp/mutations='[resolution]' -m

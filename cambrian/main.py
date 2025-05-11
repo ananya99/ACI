@@ -2,7 +2,7 @@
 training and evaluation loops."""
 
 import os
-os.environ["MUJOCO_GL"] = "glfw"
+os.environ["MUJOCO_GL"] = "egl"
 
 import argparse
 

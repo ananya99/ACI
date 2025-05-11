@@ -21,15 +21,15 @@ class MjCambrianModel(PPO):
 
         self._rollout: List[Dict[str, Any]] = None
 
-    def save_policy(self, path: Path | str):
+    def save_policy(self, path: Path | str, policy_name: str = "policy"):
         """Overwrite the save method. Instead of saving the entire state, we'll
         just save the policy weights."""
 
         path = Path(path)
         path.mkdir(parents=True, exist_ok=True)
-        torch.save(self.policy.state_dict(), path / "policy.pt")
+        torch.save(self.policy.state_dict(), path / f"{policy_name}.pt")
 
-    def load_policy(self, path: Path | str):
+    def load_policy(self, path: Path | str, policy_name: str = "policy"):
         """Overwrite the load method. Instead of loading the entire state, we'll just
         load the policy weights.
 
@@ -46,9 +46,9 @@ class MjCambrianModel(PPO):
                     `load_state_dict`, we can ignore this layer.
         """
 
-        policy_path = Path(path) / "policy.pt"
+        policy_path = Path(path) / f"{policy_name}.pt"
         if not policy_path.exists():
-            raise FileNotFoundError(f"Could not find policy.pt file at {policy_path}.")
+            raise FileNotFoundError(f"Could not find {policy_name}.pt file at {policy_path}.")
 
         # Loop through the loaded state_dict and remove any layers that don't match in
         # shape with the current policy

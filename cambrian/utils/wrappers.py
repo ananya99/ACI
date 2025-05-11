@@ -1,7 +1,10 @@
 """Wrappers for the MjCambrianEnv. Used during training."""
 
+from pathlib import Path
 from types import NoneType
 from typing import Any, Callable, Dict, List, Optional, Tuple
+
+import torch
 
 import gymnasium as gym
 import numpy as np
@@ -98,7 +101,7 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         self,
         env: MjCambrianEnv,
         *,
-        pretrained_model_path: str = None,
+        pretrained_policy_path: str = None,
         agent_name: Optional[str] = None,
         combine_rewards: bool = True,
         combine_terminated: bool = True,
@@ -106,8 +109,8 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
     ):
         super().__init__(env)
 
-        self.pretrained_model_path = pretrained_model_path
-        print("pretrained_model_path: ", pretrained_model_path)
+        self.pretrained_policy_path = pretrained_policy_path
+        print("pretrained_policy_path: ", pretrained_policy_path)
         self._combine_rewards = combine_rewards
         self._combine_terminated = combine_terminated
         self._combine_truncated = combine_truncated
@@ -144,17 +147,19 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         #     # print("no agent models, returning previous action")
         #     return self.prev_actions[i] # previous action
         if self.is_training_agent(agent_name):
-            # print("it's the training agent, returning action")
+            print("it's the training agent, returning action")
             self.prev_actions[i] = training_agent_action
             return training_agent_action
         else:
-            return self.prev_actions[i]
-        # else:
-        #     other_agent_model = self._agent_models[i]
-        #     other_agent_obs = self.last_obs.copy()
-        #     other_agent_action, _ = other_agent_model.predict(other_agent_obs[agent_name])
-        #     self.prev_actions[i] = other_agent_action
-        #     return other_agent_action
+            # load the pretrained policy from the policy.pt file
+            policy_path = Path(self.pretrained_policy_path) / f"{agent_name}_policy.pt"
+            if not policy_path.exists():
+                raise FileNotFoundError(f"Could not find pretrained policy for {agent_name}_policy.pt file at {policy_path}.")
+            pretrained_policy = torch.load(policy_path)
+            print("loaded pretrained_policy: ", pretrained_policy)
+            action, _ = pretrained_policy.predict(self.last_obs[agent_name])
+            self.prev_actions[i] = action
+            return action
 
     def step(
         self, action: ActionType

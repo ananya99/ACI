@@ -29,7 +29,11 @@ defaults:
 
 logdir: ${path:logs,${now:%Y-%m-%d},${expname}}
 expdir: ${path:${logdir},${expsubdir}}
+<<<<<<< HEAD
 expsubdir: ${now:%H-%M-%S} # by default, the data will be stored in the logdir with timestamp
+=======
+expsubdir: ${now:%H-%M-%S} # by default, the data will be stored in the logdir
+>>>>>>> d2ebd38 (refactor: try evo)
 expname: ${hydra_select:runtime.choices.exp}_${hydra_select:runtime.choices.task}
 
 seed: 0

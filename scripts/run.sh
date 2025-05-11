@@ -23,6 +23,5 @@ else
     MUJOCO_GL=${MUJOCO_GL:-egl}
 fi
 
-cmd="MUJOCO_GL=${MUJOCO_GL} python $SCRIPT $@"
-echo "Running command: $cmd" | tee /dev/stderr
-eval $cmd
+MUJOCO_GL=egl python3 cambrian/main.py --train example=detection env/agents/eyes@env.agents.agent_predator.eyes.eye.single_eye=optics env.agents.agent_predator.eyes.eye.single_eye.aperture.radius=0.75 evo=evo +exp/mutations='[resolution]' -m
+d2ebd38 (refactor: try evo)

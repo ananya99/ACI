@@ -458,11 +458,15 @@ class MjCambrianEnv(ParallelEnv, Env):
         cursor = MjCambrianCursor(
             overlay_width, overlay_height, position=MjCambrianCursor.Position.TOP_LEFT
         )
-        for agent in self._agents.values():
+        for agent in trainable_agents.values():
             agent_overlays = agent.render()
             for overlay in agent_overlays:
                 cursor = overlay.place(cursor)
                 overlays.append(overlay)
+
+            # Reset the cursor
+            cursor.set_position(y=None)
+            cursor.x += overlay_width
         return overlays
 
     @property

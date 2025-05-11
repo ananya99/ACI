@@ -1,0 +1,813 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mujoco model="forest">
+   <asset>
+      <material name="bark" rgba="0.55 0.27 0.07 1" />
+      <material name="leaves" rgba="0.0 0.5 0.0 1" />
+      <material name="grass" rgba="0.1 0.6 0.1 1" />
+   </asset>
+   <worldbody>
+      <geom name="ground" type="plane" size="10 10 0.1" material="grass" rgba="0.1 0.6 0.1 1" pos="0 0 0" />
+   </worldbody>
+   <worldbody>
+      <body name="tree_-5.082004386827334_7.782059042044757" pos="-5.082004386827334 7.782059042044757 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_7.377812232161233_1.1016359498314703" pos="7.377812232161233 1.1016359498314703 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_1.4270502252965596_-9.703608022705133" pos="1.4270502252965596 -9.703608022705133 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_9.940205511755302_-1.9929936658420928" pos="9.940205511755302 -1.9929936658420928 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_1.275526770997221_1.5633792393769763" pos="1.275526770997221 1.5633792393769763 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_0.0921466672166833_8.705435675272522" pos="0.0921466672166833 8.705435675272522 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_0.5127016206044299_9.680586604338682" pos="0.5127016206044299 9.680586604338682 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-2.0223973847467853_-6.346019903339624" pos="-2.0223973847467853 -6.346019903339624 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_2.3230499562754368_4.388937471711445" pos="2.3230499562754368 4.388937471711445 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-7.843333793189615_-8.758109774180934" pos="-7.843333793189615 -8.758109774180934 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_4.739170353238304_-2.7286271024167856" pos="4.739170353238304 -2.7286271024167856 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_7.348399759570931_-1.244836865284352" pos="7.348399759570931 -1.244836865284352 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_4.063918331012214_-1.7984075262344135" pos="4.063918331012214 -1.7984075262344135 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_8.514033075634227_4.824569681379279" pos="8.514033075634227 4.824569681379279 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_3.988909387815159_9.684874451787934" pos="3.988909387815159 9.684874451787934 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_1.0385899772257225_6.96802779818367" pos="1.0385899772257225 6.96802779818367 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-8.011090571158718_-1.0192227120955426" pos="-8.011090571158718 -1.0192227120955426 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-0.0488504023035663_-4.325129884923815" pos="-0.0488504023035663 -4.325129884923815 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_2.925960456935595_-3.069306955400193" pos="2.925960456935595 -3.069306955400193 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-4.262013093233035_-7.3454353460714605" pos="-4.262013093233035 -7.3454353460714605 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-3.4879361637565154_-9.432159069949027" pos="-3.4879361637565154 -9.432159069949027 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_8.180173081882309_2.856439084199847" pos="8.180173081882309 2.856439084199847 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_4.922567065295214_-0.1061659861335773" pos="4.922567065295214 -0.1061659861335773 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-0.05339033645007518_-2.8622133774974508" pos="-0.05339033645007518 -2.8622133774974508 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_4.601913062878516_3.2244720437666032" pos="4.601913062878516 3.2244720437666032 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-6.683745172318661_6.7003902444084815" pos="-6.683745172318661 6.7003902444084815 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_1.339086960170917_-8.696925182957782" pos="1.339086960170917 -8.696925182957782 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-9.864474871090078_-5.302943897776558" pos="-9.864474871090078 -5.302943897776558 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-6.596903037178743_9.96005429477363" pos="-6.596903037178743 9.96005429477363 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-1.4586878905162735_-9.576220446513606" pos="-1.4586878905162735 -9.576220446513606 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-8.277894376952561_1.328262981238792" pos="-8.277894376952561 1.328262981238792 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-2.312687848916992_-8.51946929141227" pos="-2.312687848916992 -8.51946929141227 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_1.9961715982981225_6.560656657512858" pos="1.9961715982981225 6.560656657512858 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_2.6502516129722338_-4.226884904095023" pos="2.6502516129722338 -4.226884904095023 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-8.943881775306547_7.674686996741244" pos="-8.943881775306547 7.674686996741244 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-5.045492408334276_3.1409487944041192" pos="-5.045492408334276 3.1409487944041192 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-3.0362000779122766_-2.9740303804253543" pos="-3.0362000779122766 -2.9740303804253543 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_1.4332890966297747_5.596573241211216" pos="1.4332890966297747 5.596573241211216 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_7.317104758364181_9.699070718916541" pos="7.317104758364181 9.699070718916541 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_3.1301117408389807_1.6005592894546883" pos="3.1301117408389807 1.6005592894546883 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_3.4020370212474376_2.868119242832428" pos="3.4020370212474376 2.868119242832428 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_8.168415475017582_6.2450320224001" pos="8.168415475017582 6.2450320224001 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_2.208680717042281_-5.192410405042387" pos="2.208680717042281 -5.192410405042387 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_2.004036313753323_-6.282063451597171" pos="2.004036313753323 -6.282063451597171 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_4.225011718388094_-6.720480345690745" pos="4.225011718388094 -6.720480345690745 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_2.9113321989974352_5.30465622568528" pos="2.9113321989974352 5.30465622568528 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_3.991907586622851_7.293630549954035" pos="3.991907586622851 7.293630549954035 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-3.812765418599973_6.931157113914697" pos="-3.812765418599973 6.931157113914697 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-5.673946521685811_5.945801148770629" pos="-5.673946521685811 5.945801148770629 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_8.464829522310836_-2.4170570580188633" pos="8.464829522310836 -2.4170570580188633 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_5.732561837084763_8.698594182762527" pos="5.732561837084763 8.698594182762527 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_0.8277352600835126_-5.607137623346508" pos="0.8277352600835126 -5.607137623346508 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_5.479169338232195_2.585693293254801" pos="5.479169338232195 2.585693293254801 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_2.890211096701883_-0.34175965152563315" pos="2.890211096701883 -0.34175965152563315 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_9.839288692435932_9.62261446924693" pos="9.839288692435932 9.62261446924693 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_9.67182354237558_8.307173822774047" pos="9.67182354237558 8.307173822774047 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-1.6091991210548606_-0.1355639039420371" pos="-1.6091991210548606 -0.1355639039420371 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_8.5228693908049_7.480310613208786" pos="8.5228693908049 7.480310613208786 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-0.7922829849990087_-6.0719818079550025" pos="-0.7922829849990087 -6.0719818079550025 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-1.932839647802636_2.87940366543636" pos="-1.932839647802636 2.87940366543636 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-3.9774009604096694_3.806913886247772" pos="-3.9774009604096694 3.806913886247772 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-2.7381609833269627_-4.83550436132999" pos="-2.7381609833269627 -4.83550436132999 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-9.901153620555174_9.381792957875692" pos="-9.901153620555174 9.381792957875692 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-7.155643873751318_-5.840987746750173" pos="-7.155643873751318 -5.840987746750173 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-9.945712417840419_-7.4668103290935655" pos="-9.945712417840419 -7.4668103290935655 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_9.561697182406736_4.248778967903233" pos="9.561697182406736 4.248778967903233 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-9.783391315426542_4.428209330395706" pos="-9.783391315426542 4.428209330395706 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_3.1430646472686785_-7.28133083644037" pos="3.1430646472686785 -7.28133083644037 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-2.4241687963883525_1.7933575902296184" pos="-2.4241687963883525 1.7933575902296184 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-0.21278839924124426_4.785029010429351" pos="-0.21278839924124426 4.785029010429351 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_8.865849668588368_-4.202215637463816" pos="8.865849668588368 -4.202215637463816 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-6.651782128310256_1.062862931684398" pos="-6.651782128310256 1.062862931684398 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-4.975763301123097_-4.116335900875477" pos="-4.975763301123097 -4.116335900875477 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-0.10953285684921354_3.3629039222999637" pos="-0.10953285684921354 3.3629039222999637 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_9.923392694220802_-8.118179699742647" pos="9.923392694220802 -8.118179699742647 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_5.922009186312746_-7.328744236306461" pos="5.922009186312746 -7.328744236306461 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_1.5676955897943952_9.604894773499414" pos="1.5676955897943952 9.604894773499414 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_5.7863439410262_3.638649657672575" pos="5.7863439410262 3.638649657672575 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-7.138263668170177_3.3988952558545105" pos="-7.138263668170177 3.3988952558545105 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-9.67865360651512_5.513778400957687" pos="-9.67865360651512 5.513778400957687 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-1.0343407464447374_-1.3868818818274686" pos="-1.0343407464447374 -1.3868818818274686 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_9.525965545978249_6.7901426739931985" pos="9.525965545978249 6.7901426739931985 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-1.5650268048471467_4.292055561378948" pos="-1.5650268048471467 4.292055561378948 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_3.4470055059757154_-5.629701369277569" pos="3.4470055059757154 -5.629701369277569 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_2.296272024273039_3.3158989874132274" pos="2.296272024273039 3.3158989874132274 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-0.43496129758183066_-7.11666090553307" pos="-0.43496129758183066 -7.11666090553307 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-4.339582965712065_-5.968345461897037" pos="-4.339582965712065 -5.968345461897037 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_8.225705084954075_1.725870602995288" pos="8.225705084954075 1.725870602995288 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-5.170419509487358_-6.627858669990012" pos="-5.170419509487358 -6.627858669990012 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_6.333971733867877_-4.734155768492602" pos="6.333971733867877 -4.734155768492602 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_9.921817344469524_-0.7655025327167095" pos="9.921817344469524 -0.7655025327167095 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-7.692551599948287_-2.995833592920727" pos="-7.692551599948287 -2.995833592920727 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_8.115041926665189_-7.75191655822206" pos="8.115041926665189 -7.75191655822206 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-6.832321018008183_-7.674089117282388" pos="-6.832321018008183 -7.674089117282388 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_0.9476224653472105_-1.4967441839476656" pos="0.9476224653472105 -1.4967441839476656 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-4.229522314279539_8.477133353855585" pos="-4.229522314279539 8.477133353855585 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-8.502043531815392_6.173304327356529" pos="-8.502043531815392 6.173304327356529 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-3.5616145953146177_1.299545522642088" pos="-3.5616145953146177 1.299545522642088 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-6.928034544674455_-3.9753115083056567" pos="-6.928034544674455 -3.9753115083056567 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_9.471958254194305_5.611055119322405" pos="9.471958254194305 5.611055119322405 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_1.2909123302610084_-4.238402461694899" pos="1.2909123302610084 -4.238402461694899 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_4.081997024917294_-9.12894133572054" pos="4.081997024917294 -9.12894133572054 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-8.976430293321492_3.0790709568428554" pos="-8.976430293321492 3.0790709568428554 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_5.207192444917192_-6.498610839254299" pos="5.207192444917192 -6.498610839254299 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_4.125845138948684_1.4831564862204072" pos="4.125845138948684 1.4831564862204072 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-1.2038180097213314_7.782780507211513" pos="-1.2038180097213314 7.782780507211513 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-9.832608576900144_1.1499999823873566" pos="-9.832608576900144 1.1499999823873566 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-8.78548681862034_-0.24286370541234703" pos="-8.78548681862034 -0.24286370541234703 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-2.154200654112808_-1.3210711091044498" pos="-2.154200654112808 -1.3210711091044498 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_4.546681889181347_-4.7871703559075645" pos="4.546681889181347 -4.7871703559075645 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-2.0175364027751126_-3.2284573636409792" pos="-2.0175364027751126 -3.2284573636409792 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_6.857636956400739_6.95919979603881" pos="6.857636956400739 6.95919979603881 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-8.037032076237532_-7.2729463324709" pos="-8.037032076237532 -7.2729463324709 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-8.88680924898862_-7.815449650935764" pos="-8.88680924898862 -7.815449650935764 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-8.582447455883507_-4.471480695572678" pos="-8.582447455883507 -4.471480695572678 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-6.0511173079024605_-1.7672658155840182" pos="-6.0511173079024605 -1.7672658155840182 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-5.822218173744178_-2.9689593859704004" pos="-5.822218173744178 -2.9689593859704004 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_1.3608223108015753_3.961850771840732" pos="1.3608223108015753 3.961850771840732 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_1.4547276409371346_-7.205311127503855" pos="1.4547276409371346 -7.205311127503855 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_0.7049947782366566_0.18623223239949738" pos="0.7049947782366566 0.18623223239949738 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-7.1187464138151775_-1.7912715468887583" pos="-7.1187464138151775 -1.7912715468887583 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_6.620670672840912_4.4603367324954775" pos="6.620670672840912 4.4603367324954775 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-5.424021514604567_9.081271572886184" pos="-5.424021514604567 9.081271572886184 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-2.062218764051538_9.712544282716827" pos="-2.062218764051538 9.712544282716827 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-0.6015628132406796_5.849506378094125" pos="-0.6015628132406796 5.849506378094125 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_7.3975393383713595_-4.65809673776546" pos="7.3975393383713595 -4.65809673776546 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_2.3054680986987712_8.63541011212737" pos="2.3054680986987712 8.63541011212737 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_6.6956102616332345_-6.339883170287603" pos="6.6956102616332345 -6.339883170287603 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-0.7889563276849039_9.953669598320687" pos="-0.7889563276849039 9.953669598320687 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_6.271283434357098_-1.0472980485034356" pos="6.271283434357098 -1.0472980485034356 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-2.810878916027029_5.187613459117902" pos="-2.810878916027029 5.187613459117902 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-6.248941674807362_-6.478509900608762" pos="-6.248941674807362 -6.478509900608762 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-8.793518241998076_9.758543962220333" pos="-8.793518241998076 9.758543962220333 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-2.8615383319094523_-7.182606828031015" pos="-2.8615383319094523 -7.182606828031015 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-9.480468753011627_6.53028196464944" pos="-9.480468753011627 6.53028196464944 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_1.8381811748047348_-3.265379104304225" pos="1.8381811748047348 -3.265379104304225 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-1.0733875913869433_1.9672262304574986" pos="-1.0733875913869433 1.9672262304574986 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-8.941088859782571_-1.6099220424320286" pos="-8.941088859782571 -1.6099220424320286 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-4.7009624972184705_-1.634422960607294" pos="-4.7009624972184705 -1.634422960607294 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_6.479019347159536_-8.430965829164602" pos="6.479019347159536 -8.430965829164602 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-8.464748692374684_-5.571631720170124" pos="-8.464748692374684 -5.571631720170124 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_3.083849008852294_-8.456919611123258" pos="3.083849008852294 -8.456919611123258 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-0.34344746199263554_-8.122430594371323" pos="-0.34344746199263554 -8.122430594371323 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_5.281017948404296_5.710856329532971" pos="5.281017948404296 5.710856329532971 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-7.924169634666001_-9.978500981317534" pos="-7.924169634666001 -9.978500981317534 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_9.222603249373499_-6.549188897589662" pos="9.222603249373499 -6.549188897589662 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-5.763329176701335_-9.826632670261006" pos="-5.763329176701335 -9.826632670261006 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-5.155148224962602_-0.6341320625851683" pos="-5.155148224962602 -0.6341320625851683 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-3.630934324522408_-0.13177450680359826" pos="-3.630934324522408 -0.13177450680359826 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-7.748365159718609_7.373470461175245" pos="-7.748365159718609 7.373470461175245 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_1.290829658547704_2.8537248940631432" pos="1.290829658547704 2.8537248940631432 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-2.5674866359297566_7.591737210311752" pos="-2.5674866359297566 7.591737210311752 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-3.1797132809002626_-5.740211067942031" pos="-3.1797132809002626 -5.740211067942031 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_4.668841092204119_8.699524500415325" pos="4.668841092204119 8.699524500415325 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_7.105781551508233_3.194989335565637" pos="7.105781551508233 3.194989335565637 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_7.805264799626741_-8.943636626498428" pos="7.805264799626741 -8.943636626498428 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-3.645801813725031_-8.395293772880851" pos="-3.645801813725031 -8.395293772880851 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_6.706718604371208_-3.7029251108326777" pos="6.706718604371208 -3.7029251108326777 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_6.533632907624288_2.2829013704330254" pos="6.533632907624288 2.2829013704330254 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-6.101772675323456_7.5631503210731275" pos="-6.101772675323456 7.5631503210731275 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_5.8801909300829855_7.467186614904875" pos="5.8801909300829855 7.467186614904875 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-7.227751881489217_9.041652678346942" pos="-7.227751881489217 9.041652678346942 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_4.615923104045333_4.524038955747979" pos="4.615923104045333 4.524038955747979 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_6.295569111134789_0.9378162657714295" pos="6.295569111134789 0.9378162657714295 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-2.9623494997671713_3.8335695239144307" pos="-2.9623494997671713 3.8335695239144307 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-7.592232948962319_0.23107070236756755" pos="-7.592232948962319 0.23107070236756755 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_9.5166973111975_0.4317718931548953" pos="9.5166973111975 0.4317718931548953 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-5.19769569285555_-8.243134865732166" pos="-5.19769569285555 -8.243134865732166 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_-0.16782812308622752_-0.5241342704486485" pos="-0.16782812308622752 -0.5241342704486485 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-5.7724151031730635_-4.815989157053897" pos="-5.7724151031730635 -4.815989157053897 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-1.9895239050970925_6.477464560060728" pos="-1.9895239050970925 6.477464560060728 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-3.3231670500939785_-1.8416714341122802" pos="-3.3231670500939785 -1.8416714341122802 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_4.0847582951749075_5.465127304778592" pos="4.0847582951749075 5.465127304778592 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_8.119446304019608_-3.525230291956025" pos="8.119446304019608 -3.525230291956025 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_0.17744647504754063_2.057191430262934" pos="0.17744647504754063 2.057191430262934 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_9.205544983006_2.9024193711042034" pos="9.205544983006 2.9024193711042034 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_2.33945955173121_-1.3304657298704985" pos="2.33945955173121 -1.3304657298704985 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-8.165564044141483_4.531993875954994" pos="-8.165564044141483 4.531993875954994 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_6.896674961267333_-0.25444388684474895" pos="6.896674961267333 -0.25444388684474895 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_6.377921329928714_-9.947032603827807" pos="6.377921329928714 -9.947032603827807 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_7.928105763479202_-0.3274541818472283" pos="7.928105763479202 -0.3274541818472283 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-3.78398940720027_9.408045997302544" pos="-3.78398940720027 9.408045997302544 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-9.266756596021285_-9.147582779238588" pos="-9.266756596021285 -9.147582779238588 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_3.140807302894043_7.942735850585766" pos="3.140807302894043 7.942735850585766 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_3.8066698986429017_-3.93399636535956" pos="3.8066698986429017 -3.93399636535956 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-9.153123987179653_1.9824358855059803" pos="-9.153123987179653 1.9824358855059803 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_8.542831764746087_-1.189898797738282" pos="8.542831764746087 -1.189898797738282 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-1.5885014431848852_0.9047008323206676" pos="-1.5885014431848852 0.9047008323206676 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_0.2898420144820424_-9.044680051955796" pos="0.2898420144820424 -9.044680051955796 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_2.4727798828829393_-9.990779300673331" pos="2.4727798828829393 -9.990779300673331 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-4.041633488019203_2.783676812832546" pos="-4.041633488019203 2.783676812832546 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-6.054141058849858_4.366961930386278" pos="-6.054141058849858 4.366961930386278 0">
+         <geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" />
+         <geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" />
+      </body>
+      <body name="tree_7.102086931006248_8.698179668219652" pos="7.102086931006248 8.698179668219652 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_-4.444697096975978_5.563995157816763" pos="-4.444697096975978 5.563995157816763 0">
+         <geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" />
+         <geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" />
+      </body>
+      <body name="tree_4.207890868756088_-8.132176125906987" pos="4.207890868756088 -8.132176125906987 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_9.989854205946752_-4.639715026681253" pos="9.989854205946752 -4.639715026681253 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-5.995083881950132_2.529770284074411" pos="-5.995083881950132 2.529770284074411 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_-1.6734540583715294_-7.745277314927854" pos="-1.6734540583715294 -7.745277314927854 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+      <body name="tree_-4.563418866445447_-3.11236415298072" pos="-4.563418866445447 -3.11236415298072 0">
+         <geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" />
+         <geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" />
+      </body>
+      <body name="tree_9.758868925327455_-5.680066295466815" pos="9.758868925327455 -5.680066295466815 0">
+         <geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" />
+         <geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" />
+      </body>
+   </worldbody>
+</mujoco>

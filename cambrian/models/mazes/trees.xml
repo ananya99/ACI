@@ -1,0 +1,25 @@
+<mujoco>
+  <option timestep="0.01"/>
+  
+  <asset>
+    <material name="bark" rgba="0.4 0.2 0.1 1"/>
+    <material name="leaves" rgba="0.1 0.6 0.1 1"/>
+    <hfield name="terrain" size="10 10 1 0.2" nrow="2" ncol="2" elevation="0 0 0 0"/>
+  </asset>
+
+  <worldbody>
+    <!-- Ground -->
+    <geom name="ground" type="hfield" hfield="terrain" pos="0 0 0"/>
+
+    <!-- Alternative: Use fromto instead of rotation -->
+    <body name="tree2" pos="-2 0 0">
+      <geom type="cylinder"
+            size="0.15"
+            fromto="0 0 0 0 0 1.5"
+            material="bark"/>
+      <body pos="0 0 1.5">
+        <geom type="sphere" size="0.6" material="leaves"/>
+      </body>
+    </body>
+  </worldbody>
+</mujoco>

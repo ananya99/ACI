@@ -207,21 +207,22 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
     def fill_action(self,i,agent_name, training_agent_action):
         if self.is_training_agent(agent_name):
             # print("it's the training agent, returning action")
-            # self.prev_actions[i] = training_agent_action
+            self.prev_actions[i] = training_agent_action
             return training_agent_action
         else:
             # return self.prev_actions[i]
             if self._agent_models.get(agent_name) is None:
-                self.set_agent_model(agent_name)
+                self.load_agent_model(agent_name)
             if self._agent_models.get(agent_name) is None:
-                print("no model found for agent:", agent_name)
+                print("no model found for agent:", agent_name, ", returning prev_actions: ", self.prev_actions[i])
                 return self.prev_actions[i]
             model = self._agent_models[agent_name]
             # print("agent_name", agent_name)
             # print("!!! 182 observation space: ", model.observation_space)
             stacked_frames = self._get_stacked_frames(agent_name)
-            action, _ = model.predict(stacked_frames)
-            # self.prev_actions[i] = action
+            # action, _ = model.predict(stacked_frames)
+            action = [-1.0, 0.0]
+            self.prev_actions[i] = action
             return action
 
     def step(
@@ -240,6 +241,8 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         
         obs, rewards, terminateds, truncateds, infos = self.env.step(actions)
         self.last_obs = obs
+        for agent_name in self.env.agents.keys():
+            self._update_frame_queue(agent_name, obs[agent_name])
 
         ob = obs[self._training_agent.name]
         info = infos[self._training_agent.name]

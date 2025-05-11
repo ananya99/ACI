@@ -112,6 +112,11 @@ class MjCambrianEvalCallback(EvalCallback):
     Note:
         Only the first environment is visualized
     """
+    
+    # sequence = ['00', '10', '01', '11', '02', '12', '03', '13', '04', '14',
+    #         '05', '15', '06', '16', '07', '17', '08', '18', '09', '19']
+    
+    # seq_iter = iter(sequence)
 
     def _init_callback(self):
         self.log_path = Path(self.log_path)

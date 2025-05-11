@@ -95,8 +95,8 @@ class MjCambrianTrainer:
             return -float("inf")
 
         # Setup the environment, model, and callbacks agent_model_config=self._config.trainer
-        env = self._make_env(self._config.env, self._config.trainer.n_envs, training_agent_name="agent_predator")
-        env2 = self._make_env(self._config.env, self._config.trainer.n_envs, training_agent_name="agent_prey")
+        env = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor.csv", training_agent_name="agent_predator")
+        env2 = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor2.csv", training_agent_name="agent_prey")
         envs = [env, env2]
         eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name="agent_predator")
         eval_env2 = self._make_env(self._config.eval_env, 1, monitor="eval2_monitor.csv", training_agent_name="agent_prey")
@@ -126,12 +126,13 @@ class MjCambrianTrainer:
         
         # Start training
         iterations = 2
-        total_timesteps = self._config.trainer.total_timesteps // 10
+        total_timesteps = self._config.trainer.total_timesteps // 2
         
         for i in range(iterations):
             for j, agent_name in enumerate(agent_names):
                 training_agent_name = agent_name
-                print("training agent:", training_agent_name)
+                print("######################### iteration: ", i)
+                print("######################### training agent: ", training_agent_name)
                 # envs[j].env_method("set_training_agent", training_agent_name)
                 agent_models[agent_name].learn(total_timesteps=total_timesteps, callback=callbacks[j])
                 # cambrian_env.set_agent_models(agent_models)
@@ -142,7 +143,6 @@ class MjCambrianTrainer:
                 # Update the policy
                 get_logger().info(f"Saving model to {self._config.expdir}...")
                 agent_models[agent_name].save(self._config.expdir, agent_name+'_model')
-                agent_models[agent_name].save_policy(self._config.expdir, agent_name+'_policy')
                 get_logger().debug(f"Saved model to {self._config.expdir}...")
 
         # The finished file indicates to the evo script that the agent is done

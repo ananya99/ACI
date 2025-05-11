@@ -15,7 +15,7 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         name: str,
         *,
         predator: str,
-        speed: float = 0.0,
+        speed: float = 1.0,
         safe_distance: float = 5.0,
     ):
         super().__init__(config, name)
@@ -41,4 +41,4 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         escape_theta = np.arctan2(escape_vector[1], escape_vector[0])
         theta_action = np.interp(escape_theta, [-np.pi, np.pi], [-1, 1])
 
-        return [-1.0, 0.0]
+        return [self._speed, theta_action]

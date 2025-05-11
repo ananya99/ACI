@@ -96,6 +96,9 @@ class MjCambrianTrainer:
         eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
         callback = self._make_callback(eval_env)
         model = self._make_model(env)
+        
+        # get_logger().info("Loading best model...")
+        # model = model.load("logs/2025-05-11-masked-single/exp_detection/best_model",env=env)
 
         # Save the eval environments xml
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped

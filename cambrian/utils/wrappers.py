@@ -129,10 +129,6 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
         # print(f'Action: {action}')
 
         obs, reward, terminated, truncated, info = self.env.step(action)
-        # print(f"Obs: {obs[self.selected_agent]['agent_predator_eye_0_0'].shape}")
-        # print(f'Reward: {reward}')
-        # print(f'Terminated: {terminated}')
-        # print(f'Truncated: {truncated}')
 
         # Accumulate the rewards, terminated, and truncated
         reward = reward[self.selected_agent]
@@ -142,162 +138,160 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
         return obs[self.selected_agent], reward, terminated, truncated, info
 
 
-# class MjCambrianAllAECEnvWrapper(gym.Wrapper):
-#     def __init__(self, env: MjCambrianEnv):
-#         super().__init__(env)
-#         self.env: MjCambrianEnv
-#         self.agents = cycle(env.agents)
-#         self.selected_agent = None
-#         self.prev_action = np.array([[-1.0,-1.0],[-1.0,-1.0]])
+class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
+    def __init__(self, env: MjCambrianEnv):
+        super().__init__(env)
+        self.env: MjCambrianEnv
+        self.agents = cycle(env.agents)
+        self.selected_agent = None
+        self.iter_agent()
+        self.prev_action = np.array([[-1.0,0.0],[-1.0,0.0]])
     
-#     def check_agent_selection(self,agent_name):
-#         return agent_name == self.selected_agent
+    def check_agent_selection(self,agent_name):
+        return agent_name == self.selected_agent
 
-#     def obs_mask(self, obj):
-#         if isinstance(obj,list) :
-#             for i, x in enumerate(obj):
-#                 obj[i] = x*0
-#         else:
-#             obj = obj * 0
-#         return obj
+    def obs_mask(self, obj):
+        if isinstance(obj,list) :
+            for i, x in enumerate(obj):
+                obj[i] = x*0
+        else:
+            obj = obj * 0
+        return obj
 
-#     def action_mask(self, action, i , agent_name):
-#         if self.check_agent_selection(agent_name):
-#             # print('action',action)
-#             self.prev_action[:,i] = action[:,i]
-#             # print('prev action',self.prev_action)
-#             return action[:,i]
-#         else:
-#             # print(self.prev_action)
-#             return self.prev_action[:,i]
+    def action_mask(self, action, i , agent_name):
+        if self.check_agent_selection(agent_name):
+            self.prev_action[:,i] = action[:,i]
+            return action[:,i]
+        else:
+            return self.prev_action[:,i]
+        
+    def iter_agent(self):
+        self.selected_agent = next(self.agents)
 
-#     def iter_agent(self):
-#         self.selected_agent = next(self.agents)
+    def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
+        obs, info = self.env.reset(*args, **kwargs)
+        if(np.random.random() > 0.5):
+            self.iter_agent()
+        # Flatten the observations
 
-#     def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
-#         obs, info = self.env.reset(*args, **kwargs)
-#         # Flatten the observations
-#         self.iter_agent()
-#         flattened_obs: Dict[str, Any] = {}
-#         for agent_name, agent_obs in obs.items():
-#             if isinstance(agent_obs, dict):
-#                 for key, value in agent_obs.items():
-#                     flattened_obs[f"{agent_name}_{key}"] = value if self.check_agent_selection(agent_name) else self.obs_mask(value)
-#             else:
-#                 flattened_obs[agent_name] = agent_obs if self.check_agent_selection(agent_name) else self.obs_mask(agent_obs)
-#         return flattened_obs, info
+        flattened_obs: Dict[str, Any] = {}
+        for agent_name, agent_obs in obs.items():
+            if isinstance(agent_obs, dict):
+                for key, value in agent_obs.items():
+                    flattened_obs[f"{agent_name}_{key}"] = value if self.check_agent_selection(agent_name) else self.obs_mask(value)
+            else:
+                flattened_obs[agent_name] = agent_obs if self.check_agent_selection(agent_name) else self.obs_mask(agent_obs)
+        return flattened_obs, info
 
-#     def step(
-#         self, action: ActionType
-#     ) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
-#         # Convert the action back to a dict
-#         action = action.reshape(-1, len(self.env.agents))
-#         action = {
-#             agent_name: self.action_mask(action,i,agent_name)
-#             for i, agent_name in enumerate(self.env.agents.keys())
-#             if self.env.agents[agent_name].config.trainable
-#         }
+    def step(
+        self, action: ActionType
+    ) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
+        # Convert the action back to a dict
+        action = action.reshape(-1, len(self.env.agents))
+        action = {
+            agent_name: self.action_mask(action,i,agent_name)
+            for i, agent_name in enumerate(self.env.agents.keys())
+            if self.env.agents[agent_name].config.trainable
+        }
 
-#         obs, reward, terminated, truncated, info = self.env.step(action)
+        obs, reward, terminated, truncated, info = self.env.step(action)
 
-#         self.iter_agent()
+        # Accumulate the rewards, terminated, and truncated
+        reward = reward[self.selected_agent] #* (0 if self.selected_agent != 'agent_prey' else 1)
+        terminated = terminated[self.selected_agent] #and (self.selected_agent != 'agent_prey')
+        truncated = truncated[self.selected_agent] #and (self.selected_agent != 'agent_prey')
 
-#         # Accumulate the rewards, terminated, and truncated
-#         reward = reward[self.selected_agent] * (1 if self.selected_agent != 'agent_prey' else 0)
-#         terminated = terminated[self.selected_agent] and (self.selected_agent != 'agent_prey')
-#         truncated = truncated[self.selected_agent] and (self.selected_agent != 'agent_prey')
+        # self.iter_agent()
 
-#         # Flatten the observations
-#         flattened_obs: Dict[str, Any] = {}
-#         for agent_name, agent_obs in obs.items():
-#             if isinstance(agent_obs, dict):
-#                 for key, value in agent_obs.items():
-#                     flattened_obs[f"{agent_name}_{key}"] = value if self.check_agent_selection(agent_name) else self.obs_mask(value)
-#             else:
-#                 flattened_obs[agent_name] = agent_obs if self.check_agent_selection(agent_name) else self.obs_mask(agent_obs)
-#         # print(f'############ {self.selected_agent} ############### \n')
-#         # print(flattened_obs)
+        # Flatten the observations
+        flattened_obs: Dict[str, Any] = {}
+        for agent_name, agent_obs in obs.items():
+            if isinstance(agent_obs, dict):
+                for key, value in agent_obs.items():
+                    flattened_obs[f"{agent_name}_{key}"] = value if self.check_agent_selection(agent_name) else self.obs_mask(value)
+            else:
+                flattened_obs[agent_name] = agent_obs if self.check_agent_selection(agent_name) else self.obs_mask(agent_obs)
 
-#         return flattened_obs, reward, terminated, truncated, info
+        return flattened_obs, reward, terminated, truncated, info
 
-#     @property
-#     def observation_space(self) -> gym.spaces.Dict:
-#         """SB3 doesn't support nested Dict observation spaces, so we'll flatten it.
-#         If each agent has a Dict observation space, we'll flatten it into a single
-#         observation where the key in the dict is the agent name and the original space
-#         name."""
-#         observation_space: Dict[str, gym.Space] = {}
-#         for agent in self.env.agents.values():
-#             agent_observation_space = agent.observation_space
-#             if isinstance(agent_observation_space, gym.spaces.Dict):
-#                 for key, value in agent_observation_space.spaces.items():
-#                     observation_space[f"{agent.name}_{key}"] = value
-#             else:
-#                 observation_space[agent.name] = agent_observation_space
-#         return gym.spaces.Dict(observation_space)
+    @property
+    def observation_space(self) -> gym.spaces.Dict:
+        """SB3 doesn't support nested Dict observation spaces, so we'll flatten it.
+        If each agent has a Dict observation space, we'll flatten it into a single
+        observation where the key in the dict is the agent name and the original space
+        name."""
+        observation_space: Dict[str, gym.Space] = {}
+        for agent in self.env.agents.values():
+            agent_observation_space = agent.observation_space
+            if isinstance(agent_observation_space, gym.spaces.Dict):
+                for key, value in agent_observation_space.spaces.items():
+                    observation_space[f"{agent.name}_{key}"] = value
+            else:
+                observation_space[agent.name] = agent_observation_space
+        return gym.spaces.Dict(observation_space)
 
-#     @property
-#     def action_space(self) -> gym.spaces.Box:
-#         """The only gym.Space that SB3 supports that's continuous for the action space
-#         is a Box. We can assume each agent's action space is a Box, so we'll flatten
-#         each action space into one Box for the environment.
+    @property
+    def action_space(self) -> gym.spaces.Box:
+        """The only gym.Space that SB3 supports that's continuous for the action space
+        is a Box. We can assume each agent's action space is a Box, so we'll flatten
+        each action space into one Box for the environment.
 
-#         Assumptions:
-#             - All agents have the same number of actions
-#             - All actions have the same shape
-#             - All actions are continuous
-#             - All actions are normalized between -1 and 1
-#         """
+        Assumptions:
+            - All agents have the same number of actions
+            - All actions have the same shape
+            - All actions are continuous
+            - All actions are normalized between -1 and 1
+        """
 
-#         # Get the first agent's action space
-#         first_agent_name = next(iter(self.env.agents.keys()))
-#         first_agent_action_space = self.env.agents[first_agent_name].action_space
+        # Get the first agent's action space
+        first_agent_name = next(iter(self.env.agents.keys()))
+        first_agent_action_space = self.env.agents[first_agent_name].action_space
 
-#         # Check if the action space is continuous
-#         assert isinstance(first_agent_action_space, gym.spaces.Box), (
-#             "SB3 only supports continuous action spaces for the environment. "
-#             f"agent {first_agent_name} has a {type(first_agent_action_space)}"
-#             " action space."
-#         )
+        # Check if the action space is continuous
+        assert isinstance(first_agent_action_space, gym.spaces.Box), (
+            "SB3 only supports continuous action spaces for the environment. "
+            f"agent {first_agent_name} has a {type(first_agent_action_space)}"
+            " action space."
+        )
 
-#         # Get the shape of the action space
-#         shape = first_agent_action_space.shape
-#         low = first_agent_action_space.low
-#         high = first_agent_action_space.high
+        # Get the shape of the action space
+        shape = first_agent_action_space.shape
+        low = first_agent_action_space.low
+        high = first_agent_action_space.high
 
-#         # Check if all agents have the same number of actions
-#         for agent_name, agent_action_space in self.env.action_spaces.items():
-#             assert shape == agent_action_space.shape, (
-#                 "All agents must have the same number of actions. "
-#                 f"agent {first_agent_name} has {shape} actions, but {agent_name} "
-#                 f"has {agent_action_space.shape} actions."
-#             )
+        # Check if all agents have the same number of actions
+        for agent_name, agent_action_space in self.env.action_spaces.items():
+            assert shape == agent_action_space.shape, (
+                "All agents must have the same number of actions. "
+                f"agent {first_agent_name} has {shape} actions, but {agent_name} "
+                f"has {agent_action_space.shape} actions."
+            )
 
-#             # Check if the action space is continuous
-#             assert isinstance(agent_action_space, gym.spaces.Box), (
-#                 "SB3 only supports continuous action spaces for the environment. "
-#                 f"agent {first_agent_name} has a "
-#                 f"{type(first_agent_action_space)} action space."
-#             )
+            # Check if the action space is continuous
+            assert isinstance(agent_action_space, gym.spaces.Box), (
+                "SB3 only supports continuous action spaces for the environment. "
+                f"agent {first_agent_name} has a "
+                f"{type(first_agent_action_space)} action space."
+            )
 
-#             assert all(low == agent_action_space.low), (
-#                 "All actions must have the same low value. "
-#                 f"agent {first_agent_name} has a low value of {low}, "
-#                 f"but {agent_name} has a low value of {agent_action_space.low}."
-#             )
+            assert all(low == agent_action_space.low), (
+                "All actions must have the same low value. "
+                f"agent {first_agent_name} has a low value of {low}, "
+                f"but {agent_name} has a low value of {agent_action_space.low}."
+            )
 
-#             assert all(high == agent_action_space.high), (
-#                 "All actions must have the same high value. "
-#                 f"agent {first_agent_name} has a high value of {high}, "
-#                 f"but {agent_name} has a high value of {agent_action_space.high}."
-#             )
+            assert all(high == agent_action_space.high), (
+                "All actions must have the same high value. "
+                f"agent {first_agent_name} has a high value of {high}, "
+                f"but {agent_name} has a high value of {agent_action_space.high}."
+            )
 
-#         low = np.tile(low, len(self.env.agents))
-#         high = np.tile(high, len(self.env.agents))
-#         shape = (shape[0] * len(self.env.agents),)
-#         return gym.spaces.Box(
-#             low=low, high=high, shape=shape, dtype=first_agent_action_space.dtype
-#         )
+        low = np.tile(low, len(self.env.agents))
+        high = np.tile(high, len(self.env.agents))
+        shape = (shape[0] * len(self.env.agents),)
+        return gym.spaces.Box(
+            low=low, high=high, shape=shape, dtype=first_agent_action_space.dtype
+        )
 
 
 class MjCambrianPettingZooEnvWrapper(gym.Wrapper):

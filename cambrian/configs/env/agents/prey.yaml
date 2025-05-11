@@ -1,5 +1,5 @@
 defaults:
-  - object_sphere_textured_goal
+  - point
 
 custom:
   # This sets both the frequency of the texture of the goal and adversary
@@ -9,7 +9,7 @@ custom:
 
 name: Prey
 
-use_privileged_action: true
+use_privileged_action: false
 
 overlay_color: [0, 1, 0, 1]
 

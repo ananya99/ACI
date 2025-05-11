@@ -153,7 +153,7 @@ class MjCambrianMazeEnv(MjCambrianEnv):
 
     # def set_agent_models(self, agent_models):
     #     # print("setting agent models: ", agent_models)
-    #     self._agent_models = agent_models
+    #     self.env.set_agent_models(agent_models)
 
     # def set_training_agent(self, agent_name: str):
     #     self._training_agent = self.agents[agent_name]

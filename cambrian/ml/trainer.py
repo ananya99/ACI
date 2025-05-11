@@ -1,5 +1,6 @@
 """This module contains the trainer class for training and evaluating agents."""
 
+import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, Concatenate, Dict, Optional
 
@@ -93,7 +94,7 @@ class MjCambrianTrainer:
             Path(self._config.expdir / "pruned").touch()
             return -float("inf")
 
-        # Setup the environment, model, and callbacks
+        # Setup the environment, model, and callbacks agent_model_config=self._config.trainer
         env = self._make_env(self._config.env, self._config.trainer.n_envs)
         eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
         callback = self._make_callback(eval_env)
@@ -107,10 +108,20 @@ class MjCambrianTrainer:
 
         agent_models = {}
         for agent_name in agent_names:
+            model_path = os.path.join(self._config.expdir, agent_name+'_model')
+            # check if model already exists
+            if os.path.exists(model_path):
+                print("model already exists for agent:", agent_name, "at", model_path)
+                agent_models[agent_name] = MjCambrianModel.load(model_path)
+                print("loaded model for agent:", agent_name, "at", model_path)
+                continue
             agent_models[agent_name] = self._make_model(env)
-            agent_models[agent_name].save_policy(self._config.expdir, agent_name+'_policy')
-            print("saved initial policy for agent:", agent_name)
-        # cambrian_env.set_agent_models(agent_models)
+            agent_models[agent_name].save(model_path)
+            print("created and saved initial model for agent:", agent_name, "at", model_path)
+            # print("saved initial model for agent:", agent_name, 'at', )
+            # agent_models[agent_name].save_policy(self._config.expdir, agent_name+'_policy')
+            # print("saved initial policy for agent:", agent_name)
+        env.run_env_method('set_agent_models', agent_models)
         
         # Start training
         iterations = 2
@@ -125,6 +136,7 @@ class MjCambrianTrainer:
 
                 # Update the policy
                 get_logger().info(f"Saving model to {self._config.expdir}...")
+                agent_models[agent_name].save(self._config.expdir, agent_name+'_model')
                 agent_models[agent_name].save_policy(self._config.expdir, agent_name+'_policy')
                 get_logger().debug(f"Saved model to {self._config.expdir}...")
 
@@ -249,6 +261,7 @@ class MjCambrianTrainer:
         n_envs: int,
         *,
         monitor: str | None = "monitor.csv",
+        agent_model_config = None,
     ) -> VecEnv:
         assert n_envs > 0, f"n_envs must be > 0, got {n_envs}."
 
@@ -261,6 +274,7 @@ class MjCambrianTrainer:
                 name=self._config.expname,
                 wrappers=wrappers,
                 seed=self._calc_seed(i),
+                agent_model_config=agent_model_config,
             )
             envs.append(wrapped_env)
 

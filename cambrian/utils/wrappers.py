@@ -6,10 +6,12 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import torch
 
+from cambrian.ml.model import MjCambrianModel
 import gymnasium as gym
 import numpy as np
 from gymnasium.wrappers.numpy_to_torch import numpy_to_torch, torch_to_numpy
 from stable_baselines3.common.env_checker import check_env
+from gymnasium.wrappers import FrameStackObservation
 from itertools import cycle
 
 from cambrian.envs import MjCambrianEnv, MjCambrianEnvConfig
@@ -110,7 +112,7 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         super().__init__(env)
 
         self.pretrained_policy_path = pretrained_policy_path
-        print("pretrained_policy_path: ", pretrained_policy_path)
+        # print("pretrained_policy_path: ", pretrained_policy_path)
         self._combine_rewards = combine_rewards
         self._combine_terminated = combine_terminated
         self._combine_truncated = combine_truncated
@@ -126,6 +128,11 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         self.last_obs = None
         self._agent_models = env.agent_models
         self.prev_actions = np.array([[-1.0, 0.0] for _ in range(len(env.agents))])
+        self._agent_model_config = None
+        
+    def set_agent_model_config(self, agent_model_config):
+        print("setting agent_model_config")
+        self._agent_model_config = agent_model_config
 
     # def set_agent_models(self, agent_models):
     #     print("setting agent models: ", agent_models)
@@ -143,19 +150,22 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
         return obs[self._training_agent.name], info[self._training_agent.name]
     
     def fill_action(self,i,agent_name, training_agent_action):
-        # if len(self._agent_models) == 0:
-        #     # print("no agent models, returning previous action")
-        #     return self.prev_actions[i] # previous action
         if self.is_training_agent(agent_name):
             print("it's the training agent, returning action")
             self.prev_actions[i] = training_agent_action
             return training_agent_action
         else:
+            # return self.prev_actions[i]
             # load the pretrained policy from the policy.pt file
+            if self._agent_model_config is None:
+                print("model config is not set.")
+                return self.prev_actions[i]
             policy_path = Path(self.pretrained_policy_path) / f"{agent_name}_policy.pt"
+            print("policy_path: ", policy_path)
             if not policy_path.exists():
                 raise FileNotFoundError(f"Could not find pretrained policy for {agent_name}_policy.pt file at {policy_path}.")
-            pretrained_policy = torch.load(policy_path)
+            model = self._agent_model_config.model()
+            pretrained_policy = model.load_policy(policy_path)
             print("loaded pretrained_policy: ", pretrained_policy)
             action, _ = pretrained_policy.predict(self.last_obs[agent_name])
             self.prev_actions[i] = action
@@ -514,6 +524,9 @@ class MjCambrianConstantActionWrapper(gym.Wrapper):
         action[self._constant_action_indices] = self._constant_action_values
 
         return self.env.step(action)
+    
+    def set_agent_model_config(self, agent_model_config):
+        self.env.set_agent_model_config(agent_model_config)
 
 
 @torch_to_numpy.register(np.ndarray)
@@ -595,12 +608,32 @@ class MjCambrianTorchToNumpyWrapper(gym.Wrapper):
             The numpy-based image
         """
         return torch_to_numpy(self.env.render())
+    
+    def set_agent_model_config(self, agent_model_config):
+        self.env.set_agent_model_config(agent_model_config)
+    
+# Add a wrapper equivalent of gymnasium.wrappers.FrameStackObservation
+class MjCambrianFrameStackWrapper(FrameStackObservation):
+    def __init__(self,env: gym.Env, stack_size: int, *, padding_type: str | ObsType = "reset"):
+        super().__init__(env, stack_size, padding_type=padding_type)
+        
+    def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
+        obs, info = super().reset(*args, **kwargs)
+        return obs, info
+    
+    def step(self, action: ActionType) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
+        obs, reward, terminated, truncated, info = super().step(action)
+        return obs, reward, terminated, truncated, info
+    
+    def set_agent_model_config(self, agent_model_config):
+        self.env.set_agent_model_config(agent_model_config)
 
 
 def make_wrapped_env(
     config: MjCambrianEnvConfig,
     wrappers: List[Callable[[gym.Env], gym.Env]],
     seed: Optional[int] = None,
+    agent_model_config = None,
     **kwargs,
 ) -> gym.Env:
     """Utility function for creating a MjCambrianEnv."""
@@ -610,6 +643,8 @@ def make_wrapped_env(
         for wrapper in wrappers:
             # print(f"Wrapping {env} with {wrapper}")
             env = wrapper(env)
+            if hasattr(env, 'set_agent_model_config') and agent_model_config is not None:
+                env.set_agent_model_config(agent_model_config)
             # if isinstance(wrapper, MjCambrianMultiAgentEnvWrapper):
             #     print("cambrian_env.agents.keys: ", env.agents.keys())
         # check_env will call reset and set the seed to 0; call set_random_seed after

@@ -119,8 +119,12 @@ class MjCambrianEvalCallback(EvalCallback):
 
         # Delete all the existing renders
         for f in glob.glob(str(self.log_path / "vis_*")):
-            get_logger().info(f"Deleting {f}")
-            Path(f).unlink()
+            # instead of deleting, keep renaming the file untill it is not found
+            new_name = f.replace("vis_", "vis_old_")
+            while Path(new_name).exists():
+                new_name = new_name.replace("vis_old_", "vis_old_old_")
+            get_logger().info(f"Renaming {f} to {new_name}")
+            shutil.move(f, new_name)
 
         super()._init_callback()
 

@@ -1,5 +1,6 @@
 """Wrappers for the MjCambrianEnv. Used during training."""
 
+from collections import deque
 import os
 from pathlib import Path
 from types import NoneType
@@ -9,6 +10,7 @@ import torch
 
 from cambrian.ml.model import MjCambrianModel
 import gymnasium as gym
+from gymnasium import spaces
 from stable_baselines3 import PPO
 import numpy as np
 from gymnasium.wrappers.numpy_to_torch import numpy_to_torch, torch_to_numpy
@@ -125,41 +127,71 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
             agent_name = list(env.agents.keys())[0]
         print("initial agent_name: ", agent_name)
         
-        self._training_agent = env.agents[agent_name]
-        self.action_space = self._training_agent.action_space
-        self.observation_space = self._training_agent.observation_space
+        self._training_agent = self.env.agents[agent_name]
         
         self.last_obs = None
         self._agent_models = {}
         self.prev_actions = np.array([[-1.0, 0.0] for _ in range(len(env.agents))])
         self._agent_model_config = None
         
-    def set_agent_model_config(self, agent_model_config):
-        # print("setting agent_model_config")
-        # self._agent_model_config = agent_model_config
-        for agent_name in self.env.agents.keys():
-            self.set_agent_model(agent_name)
+        # Initialize frame queues for each agent
+        self._frame_queues: Dict[str, Dict[str, deque]] = {}
+        self._initialize_frame_queues()
+        
+    @property
+    def observation_space(self):
+        return self._training_agent.observation_space
     
-    def set_agent_model(self, agent_name):
+    @property
+    def action_space(self):
+        return self._training_agent.action_space
+    
+    def _initialize_frame_queues(self):
+        """Initialize frame queues for each agent."""
+        for agent_name in self.env.agents.keys():
+            # Get the observation space for this agent
+            obs_space = self.env.agents[agent_name].observation_space
+            self._frame_queues[agent_name] = {}
+            
+            # Initialize a queue for each key in the observation space
+            for key, space in obs_space.spaces.items():
+                if isinstance(space, spaces.Box):
+                    # Create a queue of zeros with maxlen=stack_size
+                    self._frame_queues[agent_name][key] = deque(
+                        [np.zeros(space.shape, dtype=space.dtype) for _ in range(10)],
+                        maxlen=10
+                    )
+            
+    def _update_frame_queue(self, agent_name: str, new_obs: Dict[str, np.ndarray]):
+        """Update the frame queues for an agent with new observations."""
+        for key, value in new_obs.items():
+            if key in self._frame_queues[agent_name]:
+                self._frame_queues[agent_name][key].append(value)
+        
+    def _get_stacked_frames(self, agent_name: str) -> Dict[str, np.ndarray]:
+        """Convert the frame queues to stacked numpy arrays."""
+        stacked_obs = {}
+        for key, queue in self._frame_queues[agent_name].items():
+            stacked_obs[key] = np.stack(list(queue), axis=0)
+        return stacked_obs
+        
+    def load_agent_models(self):
+        for agent_name in self.env.agents.keys():
+            self.load_agent_model(agent_name)
+    
+    def load_agent_model(self, agent_name):
         model_path = os.path.join(self.model_dir, f"{agent_name}_model.zip")
         if os.path.exists(model_path):
             self._agent_models[agent_name] = MjCambrianModel.load(model_path)
             # print("observation space: ", self._agent_models[agent_name].observation_space)
-            print("loaded model for agent:", agent_name, "at", model_path)
+            # print("loaded model for agent:", agent_name, "at", model_path)
         else:
             print("no model found for agent:", agent_name, "at", model_path)
-            
-# self._agent_models[agent_name] = MjCambrianModel.load(model_path)
-    # def set_agent_models(self, agent_models):
-    #     print("setting agent models: ", agent_models)
-    #     self.agent_models = agent_models
 
-    def set_training_agent(self, agent_name):
+    def set_training_agent(self, agent_name):   
         self.env.reset()
         print("setting training agent: ", agent_name)
         self._training_agent = self.env.agents[agent_name]
-        self.action_space = self._training_agent.action_space
-        self.observation_space = self._training_agent.observation_space
         
     def get_observation_space(self):
         return self.observation_space
@@ -175,7 +207,7 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
     def fill_action(self,i,agent_name, training_agent_action):
         if self.is_training_agent(agent_name):
             # print("it's the training agent, returning action")
-            self.prev_actions[i] = training_agent_action
+            # self.prev_actions[i] = training_agent_action
             return training_agent_action
         else:
             # return self.prev_actions[i]
@@ -185,26 +217,12 @@ class MjCambrianAlternateTrainingEnvWrapper(gym.Wrapper):
                 print("no model found for agent:", agent_name)
                 return self.prev_actions[i]
             model = self._agent_models[agent_name]
-            print("agent_name", agent_name)
-            print("!!! 182 observation space: ", model.observation_space)
-            action, _ = model.predict(self.last_obs[agent_name])
-            self.prev_actions[i] = action
-            return action
-            
-            # load the pretrained policy from the policy.pt file
-            # if self._agent_model_config is None:
-            #     print("model config is not set.")
-            #     return self.prev_actions[i]
-            # policy_path = Path(self.pretrained_policy_path) / f"{agent_name}_policy.pt"
-            # print("policy_path: ", policy_path)
-            # if not policy_path.exists():
-            #     raise FileNotFoundError(f"Could not find pretrained policy for {agent_name}_policy.pt file at {policy_path}.")
-            # model = self._agent_model_config.model()
-            # pretrained_policy = model.load_policy(policy_path)
-            # print("loaded pretrained_policy: ", pretrained_policy)
-            # action, _ = pretrained_policy.predict(self.last_obs[agent_name])
+            # print("agent_name", agent_name)
+            # print("!!! 182 observation space: ", model.observation_space)
+            stacked_frames = self._get_stacked_frames(agent_name)
+            action, _ = model.predict(stacked_frames)
             # self.prev_actions[i] = action
-            # return action
+            return action
 
     def step(
         self, action: ActionType
@@ -677,7 +695,6 @@ def make_wrapped_env(
     config: MjCambrianEnvConfig,
     wrappers: List[Callable[[gym.Env], gym.Env]],
     seed: Optional[int] = None,
-    agent_model_config = None,
     training_agent_name = None,
     **kwargs,
 ) -> gym.Env:
@@ -688,8 +705,6 @@ def make_wrapped_env(
         for wrapper in wrappers:
             # print(f"Wrapping {env} with {wrapper}")
             env = wrapper(env)
-            if hasattr(env, 'set_agent_model_config') and agent_model_config is not None:
-                env.set_agent_model_config(agent_model_config)
             if hasattr(env, 'set_training_agent') and training_agent_name is not None:
                 env.set_training_agent(training_agent_name)
             # if isinstance(wrapper, MjCambrianMultiAgentEnvWrapper):

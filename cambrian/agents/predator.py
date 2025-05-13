@@ -15,7 +15,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         name: str,
         *,
         prey: str,
-        speed: float = 0.5,
+        speed: float = 1.0,
         capture_threshold: float = 1.0,
     ):
         super().__init__(config, name)

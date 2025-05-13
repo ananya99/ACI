@@ -97,8 +97,9 @@ class MjCambrianTrainer:
         callback = self._make_callback(eval_env)
         model = self._make_model(env)
         
-        # get_logger().info("Loading best model...")
+        get_logger().info("Loading best model...")
         # model = model.load("logs/2025-05-11-masked-single/exp_detection/best_model",env=env)
+        model = model.load('/home/neo/Projects/vi/project/ACI/logs/2025-05-11-masked-single/exp_detection/best_model.zip',env=env)
 
         # Save the eval environments xml
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
@@ -143,8 +144,8 @@ class MjCambrianTrainer:
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
         model = self._make_model(eval_env)
         # if load_if_exists and (self._config.expdir / "best_model.zip").exists():
-        # get_logger().info("Loading best model...")
-        # model = model.load("/home/neo/Projects/vi/project/ACI/logs/2025-05-11-masked-single/exp_detection/best_model.zip")
+        get_logger().info("Loading best model...")
+        model = model.load("/home/neo/Projects/vi/project/ACI/logs/2025-05-13/exp_detection/best_model.zip")
 
         # Save the eval environments xml
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped

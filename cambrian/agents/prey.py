@@ -24,24 +24,30 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         self._predator = predator
         self._speed = speed
         self._safe_distance = safe_distance
-        self.prey_model = MjCambrianModel.load('/home/neo/Projects/vi/project/ACI/logs/2025-05-13/exp_detection/prey_model.zip')
-        self.action_buffer = [-1.0,0.0]
+        self.prey_model = MjCambrianModel.load('/home/neo/Projects/vi/project/ACI/logs/2025-05-13/exp_detection/prey_best_model.zip')
+        self.extrapolation_step = 0
+        self.delta = 0
+        self.prev_action = np.array([-1.0,0.0])
 
     def reset(self, *args) -> ObsType:
         return super().reset(*args)
 
     def get_action_privileged(self, env: MjCambrianMazeEnv) -> ActionType:
         assert self._predator in env.agents, f"Predator {self._predator} not found in env"
-
-        if(np.random.random() > 0.5):
+        random_selector = np.random.random()
+        if random_selector > 0.75:
             obs = env._overlays.get('adversary_obs',False)
             if obs:
                 action = self.prey_model.predict(obs, deterministic=True)
                 action = action[0].reshape(-1, len(env.agents))
-                self.action_buffer = action
+                self.delta = action[:,0] - self.prev_action
+                self.prev_action = action[:,0]
+                self.extrapolation_step = 0
                 return action[:,0]
-        else:
-            return self.action_buffer
+    
+        elif random_selector > 0.25:
+            self.extrapolation_step += 1
+            return self.prev_action + self.extrapolation_step * self.delta
 
         predator_pos = env.agents[self._predator].pos
 

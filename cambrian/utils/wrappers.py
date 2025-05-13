@@ -140,6 +140,7 @@ class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
         self._agents = cycle(env.agents)
         self.selected_agent = None
         self.iter_agent()
+        self.iter_agent()
         self.prev_action = np.array([[-1.0,0.0],[-1.0,0.0]])
     
     def check_agent_selection(self,agent_name):

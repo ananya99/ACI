@@ -77,15 +77,16 @@ def generate_perlin_noise_2d(width, height, scale=10.0, octaves=6, persistence=0
             result[y, x] = value
     return result
 
-def generate_random_tree_positions(terrain_size, num_trees, min_distance):
+def generate_random_tree_positions(terrain_size, num_trees, min_distance, margin=0.5):
     """
     Generates random tree positions on a terrain, ensuring a minimum distance
-    between them.
+    between them and respecting a margin from the environment boundaries.
 
     Args:
         terrain_size:  A tuple (width, depth) representing the size of the terrain.
         num_trees: The number of trees to generate.
         min_distance: The minimum distance allowed between tree positions.
+        margin: The minimum distance from the environment boundaries.
 
     Returns:
         A list of (x, y) tuples representing the tree positions.
@@ -94,8 +95,8 @@ def generate_random_tree_positions(terrain_size, num_trees, min_distance):
     positions = []
     for _ in range(num_trees):
         for attempt in range(1000):  # Try a limited number of times
-            x = random.uniform(-width / 2, width / 2)
-            y = random.uniform(-depth / 2, depth / 2)
+            x = random.uniform(-width / 2 + margin, width / 2 - margin)
+            y = random.uniform(-depth / 2 + margin, depth / 2 - margin)
             valid = True
             for px, py in positions:
                 if (x - px) ** 2 + (y - py) ** 2 < min_distance ** 2:

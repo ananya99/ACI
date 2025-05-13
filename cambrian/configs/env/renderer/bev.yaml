@@ -2,6 +2,6 @@ defaults:
   - renderer
 
 camera:
-  azimuth: 180.0
-  elevation: -90.0
+  azimuth: 45.0
+  elevation: -20.0
   distance: 1.25

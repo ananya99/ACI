@@ -1,0 +1,19 @@
+import xml.etree.ElementTree as ET
+import random
+from cambrian.models.mazes.forest import generate_random_tree_positions, create_tree_xml
+
+# Step 1: Parse maze_2.xml
+maze_tree = ET.parse('cambrian/models/mazes/maze_2.xml')
+maze_root = maze_tree.getroot().find('worldbody')
+
+# --- generate trees within maze boundaries ---
+terrain_half = (20, 20)
+for x,y in generate_random_tree_positions(terrain_half, num_trees=100, min_distance=1):
+    # no further shift needed
+    x_floor = x - 9.0    # because your floor is centered at X=-9
+    y_floor = y + 0.0    # no Y‐offset
+    tree_body = create_tree_xml(x_floor, y_floor, random.randint(0, 3))
+    maze_root.append(tree_body)
+
+# Step 4: Save the new XML
+maze_tree.write('cambrian/models/mazes/maze_2_with_forest.xml')

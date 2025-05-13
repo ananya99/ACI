@@ -92,12 +92,14 @@ class MjCambrianTrainer:
             return -float("inf")
 
         # Setup the environment, model, and callbacks
-        env = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor.csv", training_agent_name="agent_predator")
-        env2 = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor2.csv", training_agent_name="agent_prey")
+        env = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor.csv", training_agent_name="agent_prey")
+        env2 = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor2.csv", training_agent_name="agent_predator")
         envs = [env, env2]
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name="agent_predator")
-        eval_env2 = self._make_env(self._config.eval_env, 1, monitor="eval2_monitor.csv", training_agent_name="agent_prey")
+
+        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name="agent_prey")
+        eval_env2 = self._make_env(self._config.eval_env, 1, monitor="eval2_monitor.csv", training_agent_name="agent_predator")
         eval_envs = [eval_env, eval_env2]
+
         callback = self._make_callback(eval_env)
         callback2 = self._make_callback(eval_env2)
         callbacks = [callback, callback2]
@@ -109,29 +111,27 @@ class MjCambrianTrainer:
             with open(self._config.expdir / f"compiled_env_{i}.xml", "w") as f:
                 f.write(cambrian_eval_env.spec.to_xml())
 
-        agent_names = list(cambrian_eval_env.observation_spaces.keys())
-
+        agent_names = ['agent_prey', 'agent_predator']
         agent_models = {}
         for j, agent_name in enumerate(agent_names):
-            model_path = os.path.join(self._config.expdir, agent_name+'_model')
+            model_path = os.path.join(self._config.expdir, agent_name+'_model.zip')
             agent_models[agent_name] = self._make_model(envs[j])
             agent_models[agent_name].save(model_path)
             print("created and saved initial model for agent:", agent_name, "at", model_path)
 
         iterations = 1
-        total_timesteps = self._config.trainer.total_timesteps // 2
+        total_timesteps = 3
 
         for i in range(iterations):
-            for j, agent_name in enumerate(agent_names):
-                training_agent_name = agent_name
+            for j in range(len(agent_names)):
                 print("[INFO] Iteration: ", i)
-                print("[INFO] training agent: ", training_agent_name)
-                agent_models[agent_name].learn(total_timesteps=total_timesteps, callback=callbacks[j])
-                get_logger().info(f"Finished training the agent: {agent_name}")
-                # Update the policy
-                get_logger().info(f"Saving model to {self._config.expdir}...")
-                agent_models[agent_name].save(self._config.expdir, agent_name+'_model')
-                get_logger().debug(f"Saved model to {self._config.expdir}...")
+                envs[j].unwrapped._overlays[f"{agent_names[j]}_privileged"] = True
+                envs[j].unwrapped._overlays[f"{agent_names[1-j]}_privileged"] = False
+                print("[INFO] Using model of agent:", agent_names[j], "while training agent:", agent_names[1-j])
+                agent_models[agent_names[1-j]].learn(total_timesteps=total_timesteps, callback=callbacks[j])
+                print("[INFO] Finished training the agent:", agent_names[1-j])
+                print("[INFO] Saving model of",  agent_names[1-j], "to", self._config.expdir)
+                agent_models[agent_names[1-j]].save(self._config.expdir, agent_names[1-j]+'_model.zip')
 
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()

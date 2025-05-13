@@ -24,8 +24,9 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         self._prey = prey
         self._speed = speed
         self._capture_threshold = capture_threshold
-        if os.path.exists(os.path.join(self.config.model_path, 'prey_model.zip')):
-            self.predator_model = MjCambrianModel.load(self.config.model_path)
+        self.model_path = os.path.join(self.config.model_path, 'agent_predator_model.zip')
+        if os.path.exists(self.model_path):
+            self.predator_model = MjCambrianModel.load(self.model_path)
         else:
             self.predator_model = None
 
@@ -34,17 +35,18 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
 
     def get_action_privileged(self, env: MjCambrianMazeEnv) -> ActionType:
         assert self._prey in env.agents, f"Prey {self._prey} not found in env"
-        prey_pos = env.agents[self._prey].pos
         # obs = env._overlays.get('adversary_obs',False)
         # if np.random.random() > 0.5:
         #     if obs:
         #         action = self.predator_model.predict(obs, deterministic=True)
         #         action = action[0]
         #         return action
-
+        if os.path.exists(self.model_path):
+            self.predator_model = MjCambrianModel.load(self.model_path)
         obs = env._overlays.get('adversary_obs',False)
         # This is for check to work as the model won't exist at that time
         if self.predator_model is None:
+            print(f'Model not found')
             return [-1.0, 0.0]
         action = self.predator_model.predict(obs, deterministic=True)
         action = action[0]

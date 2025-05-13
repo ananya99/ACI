@@ -6,7 +6,7 @@ from cambrian.utils import get_logger
 from cambrian.utils.types import ActionType, ObsType
 from .point import MjCambrianAgentPoint
 from cambrian.ml.model import MjCambrianModel
-
+import os
 
 class MjCambrianAgentPrey(MjCambrianAgentPoint):
 
@@ -24,7 +24,10 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         self._predator = predator
         self._speed = speed
         self._safe_distance = safe_distance
-        # self.prey_model = MjCambrianModel.load('/home/neo/Projects/vi/project/ACI/logs/2025-05-13/exp_detection/best_prey_model.zip')
+        if os.path.exists(os.path.join(self.config.model_path, 'prey_model.zip')):
+            self.prey_model = MjCambrianModel.load(self.config.model_path)
+        else:
+            self.prey_model = None
         self.extrapolation_step = 0
         self.delta = 0
         self.prev_action = np.array([-1.0,0.0])
@@ -36,30 +39,30 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         assert self._predator in env.agents, f"Predator {self._predator} not found in env"
         # random_selector = np.random.random()
         # if random_selector > 0.75:
-        #     obs = env._overlays.get('adversary_obs',False)
-        #     if obs:
-        #         action = self.prey_model.predict(obs, deterministic=True)
-        #         action = action[0]
-        #         self.delta = action - self.prev_action
-        #         self.prev_action = action
-        #         self.extrapolation_step = 0
-        #         return action
-    
+        obs = env._overlays.get('adversary_obs',False)
+        # This is for check to work as the model won't exist at that time
+        if self.prey_model is None:
+            return [-1.0, 0.0]
+        action = self.prey_model.predict(obs, deterministic=True)
+        action = action[0]
+        # self.delta = action - self.prev_action
+        # self.prev_action = action
+        # self.extrapolation_step = 0
+        return action
         # elif random_selector > 0.25:
         #     self.extrapolation_step += 1
         #     return self.prev_action + self.extrapolation_step * self.delta
-        return self.prev_action
 
-        predator_pos = env.agents[self._predator].pos
+        # predator_pos = env.agents[self._predator].pos
 
-        escape_vector = self.pos[:2] - predator_pos[:2]
-        distance = np.linalg.norm(escape_vector)
+        # escape_vector = self.pos[:2] - predator_pos[:2]
+        # distance = np.linalg.norm(escape_vector)
 
-        if distance > self._safe_distance:
-            # get_logger().info(f"{self.name} is safe from {self._predator}.")
-            return [-1.0, 0.0]
+        # if distance > self._safe_distance:
+        #     # get_logger().info(f"{self.name} is safe from {self._predator}.")
+        #     return [-1.0, 0.0]
 
-        escape_theta = np.arctan2(escape_vector[1], escape_vector[0])
-        theta_action = np.interp(escape_theta, [-np.pi, np.pi], [-1, 1])
+        # escape_theta = np.arctan2(escape_vector[1], escape_vector[0])
+        # theta_action = np.interp(escape_theta, [-np.pi, np.pi], [-1, 1])
 
-        return [self._speed, theta_action]
+        # return [self._speed, theta_action]

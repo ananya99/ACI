@@ -106,6 +106,7 @@ class MjCambrianAgentConfig(HydraContainerConfig):
     use_contact_obs: bool
 
     eyes: Dict[str, MjCambrianEyeConfig]
+    model_path: str
 
 
 class MjCambrianAgent:

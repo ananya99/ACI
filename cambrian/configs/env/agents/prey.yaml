@@ -19,3 +19,5 @@ instance:
   speed: -0.75
   # The default target is the next agent in the list
   predator: ${eval:'next((a for a in ${oc.dict.keys:env.agents} if a != "${parent:instance}"), None)'}
+
+model_path: ${expdir}

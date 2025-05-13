@@ -82,6 +82,7 @@ def evaluate_policy(
     while run < num_runs:
         action, _ = model.predict(obs, deterministic=True)
         obs, reward, done, _ = env.step(action)
+        # print(reward)
         if done:
             get_logger().info(
                 f"Run {run} done. "

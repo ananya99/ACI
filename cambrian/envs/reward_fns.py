@@ -45,6 +45,7 @@ def apply_reward_fn(
     disable: bool = False,
     disable_on_max_episode_steps: bool = False,
 ) -> float:
+    # print(f'For agents: {for_agents}')
     """Applies the reward function to the agent if it is in the for_agents list."""
     if disable or not agent_selected(agent, for_agents):
         return 0.0
@@ -97,7 +98,7 @@ def reward_fn_done(
         truncation_reward (float): The reward to give the agent if the episode is
             truncated. Defaults to 0.
     """
-
+    # print(f'Terminated reward: {termination_reward}')
     def calc_reward():
         reward = 0.0
         

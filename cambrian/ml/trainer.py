@@ -92,14 +92,17 @@ class MjCambrianTrainer:
             return -float("inf")
 
         # Setup the environment, model, and callbacks
-        env = self._make_env(self._config.env, self._config.trainer.n_envs)
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
+        training_agent = "agent_predator"
+        env = self._make_env(self._config.env, self._config.trainer.n_envs, training_agent_name = training_agent)
+        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name = training_agent)
         callback = self._make_callback(eval_env)
         model = self._make_model(env)
+        # model.save('/home/neo/Projects/vi/project/ACI/logs/2025-05-13/exp_detection/best_model.zip')
+        # return 
         
         get_logger().info("Loading best model...")
         # model = model.load("logs/2025-05-11-masked-single/exp_detection/best_model",env=env)
-        model = model.load('/home/neo/Projects/vi/project/ACI/logs/2025-05-11-masked-single/exp_detection/best_model.zip',env=env)
+        # model = model.load('/home/neo/Projects/vi/project/ACI/logs/2025-05-11-masked-single/exp_detection/best_model.zip',env=env)
 
         # Save the eval environments xml
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
@@ -140,7 +143,7 @@ class MjCambrianTrainer:
     ) -> float:
         self._config.save(self._config.expdir / "eval_config.yaml")
 
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
+        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name= 'agent_predator')
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
         model = self._make_model(eval_env)
         # if load_if_exists and (self._config.expdir / "best_model.zip").exists():
@@ -184,6 +187,7 @@ class MjCambrianTrainer:
         self,
         config: MjCambrianEnvConfig,
         n_envs: int,
+        training_agent_name: str = None,
         *,
         monitor: str | None = "monitor.csv",
     ) -> VecEnv:
@@ -198,6 +202,7 @@ class MjCambrianTrainer:
                 name=self._config.expname,
                 wrappers=wrappers,
                 seed=self._calc_seed(i),
+                training_agent_name = training_agent_name,
             )
             envs.append(wrapped_env)
 

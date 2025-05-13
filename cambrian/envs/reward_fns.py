@@ -65,11 +65,14 @@ def reward_fn_constant(
     truncated: bool,
     info: Dict[str, Any],
     *,
+    for_agents: Optional[List[str]] = None,
     reward: float,
     **kwargs,
 ) -> float:
     """Returns a constant reward."""
-    return apply_reward_fn(env, agent, reward_fn=lambda: reward, **kwargs)
+    if not agent_selected(agent, for_agents) :
+        return 0.0
+    return apply_reward_fn(env, agent, reward_fn=lambda: reward,**kwargs)
 
 
 def reward_fn_done(

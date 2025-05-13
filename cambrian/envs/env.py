@@ -566,10 +566,8 @@ class MjCambrianEnv(ParallelEnv, Env):
         observation_spaces: Dict[str, spaces.Space] = {}
         for name, agent in self._agents.items():
             if agent.trainable:
-                # print("name, agent.observation_space: ", name, agent.observation_space)
                 observation_spaces[name] = agent.observation_space
 
-        # print(f"#################Observation spaces: {observation_spaces}")
         return spaces.Dict(observation_spaces)
 
     @property

@@ -88,7 +88,7 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
     def __init__(self, env: MjCambrianEnv):
         super().__init__(env)
         self.env: MjCambrianEnv
-        self.agents = cycle(env.agents)
+        self._agents = cycle(env.agents)
         self.selected_agent = None
         self.iter_agent()
         self.iter_agent()
@@ -107,12 +107,10 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
             return self.stationary_action
 
     def iter_agent(self):
-        self.selected_agent = next(self.agents)
+        self.selected_agent = next(self._agents)
 
     def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
         obs, info = self.env.reset(*args, **kwargs)
-        # Flatten the observations
-        # self.iter_agent()
         return obs[self.selected_agent], info
 
     def step(
@@ -124,9 +122,6 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
             for i, agent_name in enumerate(self.env.agents.keys())
             if self.env.agents[agent_name].config.trainable
         }
-        # for agent_name in self.env.agents.keys():
-        #     print(agent_name, self.env.agents[agent_name].config.trainable)
-        # print(f'Action: {action}')
 
         obs, reward, terminated, truncated, info = self.env.step(action)
 
@@ -135,14 +130,14 @@ class MjCambrianAECEnvWrapper(gym.Wrapper):
         terminated = terminated[self.selected_agent]
         truncated = truncated[self.selected_agent]
 
-        return obs[self.selected_agent], reward, terminated, truncated, info
+        return obs, reward, terminated, truncated, info
 
 
 class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
     def __init__(self, env: MjCambrianEnv):
         super().__init__(env)
         self.env: MjCambrianEnv
-        self.agents = cycle(env.agents)
+        self._agents = cycle(env.agents)
         self.selected_agent = None
         self.iter_agent()
         self.prev_action = np.array([[-1.0,0.0],[-1.0,0.0]])
@@ -166,21 +161,20 @@ class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
             return self.prev_action[:,i]
         
     def iter_agent(self):
-        self.selected_agent = next(self.agents)
+        self.selected_agent = next(self._agents)
 
     def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
         obs, info = self.env.reset(*args, **kwargs)
-        if(np.random.random() > 0.5):
-            self.iter_agent()
-        # Flatten the observations
 
         flattened_obs: Dict[str, Any] = {}
         for agent_name, agent_obs in obs.items():
             if isinstance(agent_obs, dict):
                 for key, value in agent_obs.items():
-                    flattened_obs[f"{agent_name}_{key}"] = value if self.check_agent_selection(agent_name) else self.obs_mask(value)
+                    flattened_obs[f"{agent_name}_{key}"] = value
+                    flattened_obs[f"mask_{agent_name}_{key}"] = self.check_agent_selection(agent_name)
             else:
-                flattened_obs[agent_name] = agent_obs if self.check_agent_selection(agent_name) else self.obs_mask(agent_obs)
+                flattened_obs[agent_name] = agent_obs
+                flattened_obs[f"mask_{agent_obs}"] =  self.check_agent_selection(agent_name)
         return flattened_obs, info
 
     def step(
@@ -201,16 +195,17 @@ class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
         terminated = terminated[self.selected_agent] #and (self.selected_agent != 'agent_prey')
         truncated = truncated[self.selected_agent] #and (self.selected_agent != 'agent_prey')
 
-        # self.iter_agent()
 
         # Flatten the observations
         flattened_obs: Dict[str, Any] = {}
         for agent_name, agent_obs in obs.items():
             if isinstance(agent_obs, dict):
                 for key, value in agent_obs.items():
-                    flattened_obs[f"{agent_name}_{key}"] = value if self.check_agent_selection(agent_name) else self.obs_mask(value)
+                    flattened_obs[f"{agent_name}_{key}"] = value
+                    flattened_obs[f"mask_{agent_name}_{key}"] = self.check_agent_selection(agent_name)
             else:
-                flattened_obs[agent_name] = agent_obs if self.check_agent_selection(agent_name) else self.obs_mask(agent_obs)
+                flattened_obs[agent_name] = agent_obs
+                flattened_obs[f"mask_{agent_obs}"] =  self.check_agent_selection(agent_name)
 
         return flattened_obs, reward, terminated, truncated, info
 
@@ -226,8 +221,10 @@ class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
             if isinstance(agent_observation_space, gym.spaces.Dict):
                 for key, value in agent_observation_space.spaces.items():
                     observation_space[f"{agent.name}_{key}"] = value
+                    observation_space[f"mask_{agent.name}_{key}"] = gym.spaces.Discrete(2)
             else:
                 observation_space[agent.name] = agent_observation_space
+                observation_space[f"mask_{agent.name}"] = gym.spaces.Discrete(2)
         return gym.spaces.Dict(observation_space)
 
     @property
@@ -292,6 +289,55 @@ class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
         return gym.spaces.Box(
             low=low, high=high, shape=shape, dtype=first_agent_action_space.dtype
         )
+
+
+
+class MjCambiranMaskWrapper(gym.Wrapper):
+
+    def __init__(self, env: MjCambrianEnv,):
+        super().__init__(env)
+
+    def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
+        obs, info = self.env.reset(*args, **kwargs)
+        filtered_obs: Dict[str, Any] = {}
+        adversary_obs: Dict[str, Any] = {}
+        for key, value in obs.items():
+            if 'mask' not in key:
+                mask = obs[f'mask_{key}'].reshape(10, *([1] * (value.ndim - 1))).astype(value.dtype)
+                filtered_obs[key] = value * mask
+                adversary_obs[key] = value * (1-mask)
+
+        self.env.unwrapped._overlays['adversary_obs'] = adversary_obs
+        # self.env.unwrapped._overlays['obs'] = filtered_obs
+
+
+        return filtered_obs, info
+
+
+    def step(
+        self, action: ActionType
+    ) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        filtered_obs: Dict[str, Any] = {}
+        adversary_obs: Dict[str, Any] = {}
+        for key, value in obs.items():
+            if 'mask' not in key:
+                mask = obs[f'mask_{key}'].reshape(10, *([1] * (value.ndim - 1))).astype(value.dtype)
+                filtered_obs[key] = value * mask
+                adversary_obs[key] = value * (1-mask)
+
+        self.env.unwrapped._overlays['adversary_obs'] = adversary_obs
+        # self.env.unwrapped._overlays['obs'] = filtered_obs
+
+        return filtered_obs, reward, terminated, truncated, info
+
+    @property
+    def observation_space(self) -> gym.spaces.Dict:
+        observation_space: Dict[str, gym.Space] = {}
+        for key, space in self.env.observation_space.spaces.items():
+            if 'mask' not in key:
+                observation_space[key] = space
+        return gym.spaces.Dict(observation_space)
 
 
 class MjCambrianPettingZooEnvWrapper(gym.Wrapper):

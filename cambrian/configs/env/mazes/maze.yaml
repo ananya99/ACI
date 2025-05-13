@@ -1,7 +1,11 @@
 xml:
   _target_: cambrian.utils.cambrian_xml.MjCambrianXML.parse
   _convert_: all
+<<<<<<< HEAD
   xml_string: ${read:${path:${package:},models,mazes,maze_2_with_5trees.xml}}
+=======
+  xml_string: ${read:${path:${package:},models,mazes,maze_2_with_forest.xml}}
+>>>>>>> 57af19e (trees working)
 
 enabled: True
 

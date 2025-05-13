@@ -2,6 +2,11 @@ defaults:
   - renderer
 
 camera:
+<<<<<<< HEAD
   azimuth: 180.0
   elevation: -90.0
+=======
+  azimuth: 45.0
+  elevation: -20.0
+>>>>>>> 57af19e (trees working)
   distance: 1.25

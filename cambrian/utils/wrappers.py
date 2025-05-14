@@ -167,7 +167,10 @@ class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
         for agent_name, agent_obs in obs.items():
             if isinstance(agent_obs, dict):
                 for key, value in agent_obs.items():
-                    flattened_obs[f"{agent_name}_{key}"] = value
+                    if key in ['action', 'contacts']:
+                        flattened_obs[f"{agent_name}_{key}"] = value
+                    else:
+                        flattened_obs[f"{key}"] = value
             else:
                 flattened_obs[agent_name] = agent_obs
 
@@ -192,7 +195,10 @@ class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
         for agent_name, agent_obs in obs.items():
             if isinstance(agent_obs, dict):
                 for key, value in agent_obs.items():
-                    flattened_obs[f"{agent_name}_{key}"] = value
+                    if key in ['action', 'contacts']:
+                        flattened_obs[f"{agent_name}_{key}"] = value
+                    else:
+                        flattened_obs[f"{key}"] = value
             else:
                 flattened_obs[agent_name] = agent_obs
         return flattened_obs, reward, terminated, truncated, info
@@ -208,7 +214,10 @@ class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
             agent_observation_space = agent.observation_space
             if isinstance(agent_observation_space, gym.spaces.Dict):
                 for key, value in agent_observation_space.spaces.items():
-                    observation_space[f"{agent.name}_{key}"] = value
+                    if key in ['action', 'contacts']:
+                        observation_space[f"{agent.name}_{key}"] = value
+                    else:
+                        observation_space[f"{key}"] = value
             else:
                 observation_space[agent.name] = agent_observation_space
         return gym.spaces.Dict(observation_space)

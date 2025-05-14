@@ -120,13 +120,11 @@ class MjCambrianTrainer:
             print("created and saved initial model for agent:", agent_name, "at", model_path)
 
         iterations = 1
-        total_timesteps = 3
+        total_timesteps = self._config.trainer.total_timesteps
 
         for i in range(iterations):
             for j in range(len(agent_names)):
                 print("[INFO] Iteration: ", i)
-                envs[j].unwrapped._overlays[f"{agent_names[j]}_privileged"] = True
-                envs[j].unwrapped._overlays[f"{agent_names[1-j]}_privileged"] = False
                 print("[INFO] Using model of agent:", agent_names[j], "while training agent:", agent_names[1-j])
                 agent_models[agent_names[1-j]].learn(total_timesteps=total_timesteps, callback=callbacks[j])
                 print("[INFO] Finished training the agent:", agent_names[1-j])

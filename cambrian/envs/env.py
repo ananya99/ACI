@@ -286,8 +286,8 @@ class MjCambrianEnv(ParallelEnv, Env):
             #     print(f"Agent action pair: {name}:{action[name].shape}")
             # else:
             #     print("Action for ", name, "not found in action dict. Available actions:", action.keys())
-            if not agent.trainable or self._overlays.get(f"{name}_privileged", False):
-                print(f'Agent {name} is using privileged action')
+            if not agent.trainable or agent.config.use_privileged_action:
+                # print(f'Agent {name} is using privileged action')
                 if not agent.trainable and name in action:
                     get_logger().warning(
                         f"Action for {name} found in action dict. "

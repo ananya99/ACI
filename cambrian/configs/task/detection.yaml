@@ -86,7 +86,7 @@ eval_env:
       # large positive reward for respawning the goal (which happens if the agent is
       # close to it)
       reward: 10.0
-      for_agents: ${glob:agent_prey,${oc.dict.keys:env.agents}}
+      for_agents: ${glob:agent_predator,${oc.dict.keys:env.agents}}
       scale_by_quickness: true
 
     penalize_if_has_contacts:

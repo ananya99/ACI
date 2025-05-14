@@ -99,6 +99,8 @@ def reward_fn_done(
             truncated. Defaults to 0.
     """
     # print(f'Terminated reward: {termination_reward}')
+    if agent.config.use_privileged_action:
+        return 0.0
     def calc_reward():
         reward = 0.0
         
@@ -247,6 +249,8 @@ def reward_fn_has_contacts(
     **kwargs,
 ) -> float:
     """Rewards the agent if it has contacts."""
+    if agent.config.use_privileged_action:
+        return 0.0
     return apply_reward_fn(
         env,
         agent,

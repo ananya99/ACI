@@ -25,8 +25,10 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         self._speed = speed
         self._capture_threshold = capture_threshold
         self.model_path = os.path.join(self.config.model_path, 'agent_predator_model.zip')
+        self.model_exists = False
         if os.path.exists(self.model_path):
             self.predator_model = MjCambrianModel.load(self.model_path)
+            self.model_exists = True
         else:
             self.predator_model = None
 
@@ -41,13 +43,15 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         #         action = self.predator_model.predict(obs, deterministic=True)
         #         action = action[0]
         #         return action
-        if os.path.exists(self.model_path):
-            self.predator_model = MjCambrianModel.load(self.model_path)
+        if not self.model_exists:
+            if os.path.exists(self.model_path):
+                self.predator_model = MjCambrianModel.load(self.model_path)
+                self.model_exists = True
+        if self.predator_model is None:
+            # print(f'Predator Model not found')
+            return [-1.0, 0.0]
         obs = env._overlays.get('adversary_obs',False)
         # This is for check to work as the model won't exist at that time
-        if self.predator_model is None:
-            print(f'Predator Model not found')
-            return [-1.0, 0.0]
         action = self.predator_model.predict(obs, deterministic=True)
         action = action[0]
         # self.delta = action - self.prev_action

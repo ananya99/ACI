@@ -129,7 +129,7 @@ class MjCambrianTrainer:
                 print("[INFO] Iteration: ", i)
                 print("[INFO] Using model of agent:", agent_names[j], "while training agent:", agent_names[1-j])
                 callbacks[1-j].callbacks[0].log_path = log_path
-                callbacks[1-j].callbacks[0].callback.callbacks[2].logdir = log_path
+                callbacks[1-j].callbacks[0].callback.callbacks[1].logdir = log_path
                 callbacks[1-j].callbacks[0].callback.callbacks[2].logdir = log_path
                 agent_models[agent_names[1-j]].learn(total_timesteps=total_timesteps, callback=callbacks[1-j])
                 print("[INFO] Finished training the agent:", agent_names[1-j])

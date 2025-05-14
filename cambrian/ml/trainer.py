@@ -126,7 +126,7 @@ class MjCambrianTrainer:
             for j in range(len(agent_names)):
                 print("[INFO] Iteration: ", i)
                 print("[INFO] Using model of agent:", agent_names[j], "while training agent:", agent_names[1-j])
-                agent_models[agent_names[1-j]].learn(total_timesteps=total_timesteps, callback=callbacks[j])
+                agent_models[agent_names[1-j]].learn(total_timesteps=total_timesteps, callback=callbacks[1-j])
                 print("[INFO] Finished training the agent:", agent_names[1-j])
                 print("[INFO] Saving model of",  agent_names[1-j], "to", self._config.expdir)
                 agent_models[agent_names[1-j]].save(self._config.expdir, agent_names[1-j]+'_model.zip')

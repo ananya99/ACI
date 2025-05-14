@@ -46,7 +46,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         obs = env._overlays.get('adversary_obs',False)
         # This is for check to work as the model won't exist at that time
         if self.predator_model is None:
-            print(f'Model not found')
+            print(f'Predator Model not found')
             return [-1.0, 0.0]
         action = self.predator_model.predict(obs, deterministic=True)
         action = action[0]

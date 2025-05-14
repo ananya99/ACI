@@ -124,8 +124,13 @@ class MjCambrianTrainer:
 
         for i in range(iterations):
             for j in range(len(agent_names)):
+                log_path = Path(callbacks[1-j].callbacks[0].log_path) / agent_names[1-j] / f'{i+1}/'
+                log_path.mkdir(parents=True, exist_ok=True)
                 print("[INFO] Iteration: ", i)
                 print("[INFO] Using model of agent:", agent_names[j], "while training agent:", agent_names[1-j])
+                callbacks[1-j].callbacks[0].log_path = log_path
+                callbacks[1-j].callbacks[0].callback.callbacks[2].logdir = log_path
+                callbacks[1-j].callbacks[0].callback.callbacks[2].logdir = log_path
                 agent_models[agent_names[1-j]].learn(total_timesteps=total_timesteps, callback=callbacks[1-j])
                 print("[INFO] Finished training the agent:", agent_names[1-j])
                 print("[INFO] Saving model of",  agent_names[1-j], "to", self._config.expdir)

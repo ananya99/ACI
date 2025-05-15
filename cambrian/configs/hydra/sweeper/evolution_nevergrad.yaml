@@ -61,7 +61,7 @@ optim:
   max_failure_rate: ${eval:'${oc.select:hydra.launcher.tasks_per_node, 1} / ${oc.select:evo.population_size, 1} - 1e-6'}
 
   # Load the nevergrad pkl, if it exists. This makes resuming a failed evo possible.
-  load_if_exists: ${path:${logdir},nevergrad.pkl}
+  load_if_exists: ${path:${logdir},${now:%H-%M-%S},nevergrad.pkl}
 
   callbacks:
     # Add a parameters logger callback. We can use this to get lineage info and use
@@ -73,7 +73,7 @@ optim:
 
         # The output is saved to the log directory which is the base of the evolution
         # And note, logs will always overwrite the previous logs.
-        filepath: ${path:${logdir},nevergrad.log}
+        filepath: ${path:${logdir},${now:%H-%M-%S},nevergrad.log}
         append: False
     optimizer_dump:
       name: tell
@@ -82,7 +82,7 @@ optim:
 
         # The output is saved to the log directory which is the base of the evolution
         # And note, logs will always overwrite the previous logs.
-        filepath: ${path:${logdir},nevergrad.pkl}
+        filepath: ${path:${logdir},${now:%H-%M-%S},nevergrad.pkl}
     progress_bar:
       name: tell
       callback:

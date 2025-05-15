@@ -134,7 +134,9 @@ class MjCambrianTrainer:
                 agent_models[agent_names[1-j]].learn(total_timesteps=total_timesteps, callback=callbacks[1-j])
                 print("[INFO] Finished training the agent:", agent_names[1-j])
                 print("[INFO] Saving model of",  agent_names[1-j], "to", self._config.expdir)
-                agent_models[agent_names[1-j]].save(self._config.expdir, agent_names[1-j]+'_model.zip')
+                save_path = Path(self._config.expdir) / f'{agent_names[1-j]}_model.zip'
+                os.remove(save_path)
+                agent_models[agent_names[1-j]].save(save_path)
 
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()

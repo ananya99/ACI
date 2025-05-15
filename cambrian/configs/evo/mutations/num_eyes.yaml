@@ -2,8 +2,13 @@
 
 hydra:
   sweeper:
-    params:
-      env.agents.agent.eyes.eye.num_eyes:
+    parametrization:
+      env.agents.agent_predator.eyes.eye.num_eyes:
+        init: ${${parent:}}
+        lower: 1
+        upper: 100
+        integer: true
+      env.agents.agent_prey.eyes.eye.num_eyes:
         init: ${${parent:}}
         lower: 1
         upper: 100

@@ -607,14 +607,11 @@ def make_wrapped_env(
     **kwargs,
 ) -> gym.Env:
     """Utility function for creating a MjCambrianEnv."""
-
-    non_training_agent = 'agent_prey' if training_agent_name == 'agent_predator' else 'agent_predator'
-    config.agents[training_agent_name].use_privileged_action = False
-    config.agents[non_training_agent].use_privileged_action = True
     def _init():
         env = config.instance(config, **kwargs)
+        if hasattr(env, 'set_training_agent') and training_agent_name is not None:
+                env.set_training_agent(training_agent_name)
         for wrapper in wrappers:
-            # print(f"Wrapping {env} with {wrapper}")
             env = wrapper(env)
             if hasattr(env, 'set_training_agent') and training_agent_name is not None:
                 env.set_training_agent(training_agent_name)

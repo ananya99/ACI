@@ -162,6 +162,7 @@ class MjCambrianEnv(ParallelEnv, Env):
         self._record: bool = False
         self._rollout: Dict[str, Any] = {}
         self._overlays: Dict[str, Any] = {}
+        self.training_agent_name = None
 
         # We'll store the info dict as a state within this class so that the truncation,
         # termination, and reward functions can use it for keeping a state. Like passing
@@ -172,6 +173,9 @@ class MjCambrianEnv(ParallelEnv, Env):
         # on each step, as this will cause the info dict to grow until the end of the
         # episode.
         self._info: Dict[str, Dict[str, Any]]
+
+    def set_training_agent(self, training_agent_name):
+        self.training_agent_name = training_agent_name
 
     def _create_agents(self):
         """Helper method to create the agents."""
@@ -286,7 +290,7 @@ class MjCambrianEnv(ParallelEnv, Env):
             #     print(f"Agent action pair: {name}:{action[name].shape}")
             # else:
             #     print("Action for ", name, "not found in action dict. Available actions:", action.keys())
-            if not agent.trainable or agent.config.use_privileged_action:
+            if not agent.trainable or self.training_agent_name != name:
                 # print(f'Agent {name} is using privileged action')
                 if not agent.trainable and name in action:
                     get_logger().warning(

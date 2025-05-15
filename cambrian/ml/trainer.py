@@ -123,10 +123,11 @@ class MjCambrianTrainer:
 
         iterations = 1
         total_timesteps = self._config.trainer.total_timesteps
+        orig_log_path = callbacks[j].callbacks[0].log_path
 
         for i in range(iterations):
             for j in range(len(agent_names)):
-                log_path = Path(callbacks[j].callbacks[0].log_path) / agent_names[j] / f'{i+1}/'
+                log_path = Path(orig_log_path) / agent_names[j] / f'{i+1}/'
                 log_path.mkdir(parents=True, exist_ok=True)
                 print("[INFO] Iteration: ", i)
                 print(f"[INFO] Training agent: {agent_names[j]} using model of agent: {agent_names[1-j]}")

@@ -16,7 +16,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         name: str,
         *,
         prey: str,
-        speed: float = 1.0,
+        speed: float = 0.7,
         capture_threshold: float = 1.0,
     ):
         super().__init__(config, name)
@@ -31,42 +31,48 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
             self.model_exists = True
         else:
             self.predator_model = None
+        self.extrapolation_step = 0
+        self.delta = 0
+        self.prev_action = np.array([-1.0,0.0])
 
     def reset(self, *args) -> ObsType:
         return super().reset(*args)
 
     def get_action_privileged(self, env: MjCambrianMazeEnv) -> ActionType:
         assert self._prey in env.agents, f"Prey {self._prey} not found in env"
-        # obs = env._overlays.get('adversary_obs',False)
-        # if np.random.random() > 0.5:
-        #     if obs:
-        #         action = self.predator_model.predict(obs, deterministic=True)
-        #         action = action[0]
-        #         return action
+
         if not self.model_exists:
             if os.path.exists(self.model_path):
                 self.predator_model = MjCambrianModel.load(self.model_path)
                 self.model_exists = True
         # This is for check to work as the model won't exist at that time
-        if self.predator_model is None:
+
+        random_selector = np.random.random()
+        if random_selector > 0.6:
+            if self.predator_model is None:
             # print(f'Predator Model not found')
-            return [-1.0, 0.0]
-        obs = env._overlays.get('adversary_obs',False)
-        action = self.predator_model.predict(obs, deterministic=True)
-        action = action[0]
-        # self.delta = action - self.prev_action
-        # self.prev_action = action
-        # self.extrapolation_step = 0
-        return action
+                return [-1.0, 0.0]
+            obs = env._overlays.get('adversary_obs',False)
+            action = self.predator_model.predict(obs, deterministic=True)
+            action = action[0]
+            self.delta = action - self.prev_action
+            self.prev_action = action
+            self.extrapolation_step = 0
+            return action
+        elif random_selector > 0.0:
+            self.extrapolation_step += 1
+            return self.prev_action + self.extrapolation_step * self.delta
+        else:
+            prey_pos = env.agents[self._prey].pos
 
-        # target_vector = prey_pos[:2] - self.pos[:2]
-        # distance = np.linalg.norm(target_vector)
+            target_vector = prey_pos[:2] - self.pos[:2]
+            distance = np.linalg.norm(target_vector)
 
-        # if distance < self._capture_threshold:
-        #     # get_logger().info(f"{self.name} captured {self._prey}!")
-        #     return [0.0, 0.0]
+            if distance < self._capture_threshold:
+                # get_logger().info(f"{self.name} captured {self._prey}!")
+                return [0.0, 0.0]
 
-        # target_theta = np.arctan2(target_vector[1], target_vector[0])
-        # theta_action = np.interp(target_theta, [-np.pi, np.pi], [-1, 1])
+            target_theta = np.arctan2(target_vector[1], target_vector[0])
+            theta_action = np.interp(target_theta, [-np.pi, np.pi], [-1, 1])
 
-        # return [self._speed, theta_action]
+            return [self._speed, theta_action]

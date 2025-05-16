@@ -47,33 +47,31 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         if self.prey_model is None:
             # print(f'Prey Model not found')
             return [-1.0, 0.0]
-        # random_selector = np.random.random()
-        # if random_selector > 0.75:
-        obs = env._overlays.get('adversary_obs', False)
-        # This is for check to work as the model won't exist at that time
-        if self.prey_model is None:
-            # print(f'Prey Model not found')
-            return [-1.0, 0.0]
-        action = self.prey_model.predict(obs, deterministic=True)
-        action = action[0]
-        # self.delta = action - self.prev_action
-        # self.prev_action = action
-        # self.extrapolation_step = 0
-        return action
-        # elif random_selector > 0.25:
-        #     self.extrapolation_step += 1
-        #     return self.prev_action + self.extrapolation_step * self.delta
 
-        # predator_pos = env.agents[self._predator].pos
+        random_selector = np.random.random()
+        if random_selector > 0.6:
+            obs = env._overlays.get('adversary_obs', False)
+            # This is for check to work as the model won't exist at that time
+            action = self.prey_model.predict(obs, deterministic=True)
+            action = action[0]
+            self.delta = action - self.prev_action
+            self.prev_action = action
+            self.extrapolation_step = 0
+            return action
+        elif random_selector > 0.0:
+            self.extrapolation_step += 1
+            return self.prev_action + self.extrapolation_step * self.delta
+        else:
+            predator_pos = env.agents[self._predator].pos
 
-        # escape_vector = self.pos[:2] - predator_pos[:2]
-        # distance = np.linalg.norm(escape_vector)
+            escape_vector = self.pos[:2] - predator_pos[:2]
+            distance = np.linalg.norm(escape_vector)
 
-        # if distance > self._safe_distance:
-        #     # get_logger().info(f"{self.name} is safe from {self._predator}.")
-        #     return [-1.0, 0.0]
+            if distance > self._safe_distance:
+                # get_logger().info(f"{self.name} is safe from {self._predator}.")
+                return [-1.0, 0.0]
 
-        # escape_theta = np.arctan2(escape_vector[1], escape_vector[0])
-        # theta_action = np.interp(escape_theta, [-np.pi, np.pi], [-1, 1])
+            escape_theta = np.arctan2(escape_vector[1], escape_vector[0])
+            theta_action = np.interp(escape_theta, [-np.pi, np.pi], [-1, 1])
 
-        # return [self._speed, theta_action]
+            return [self._speed, theta_action]

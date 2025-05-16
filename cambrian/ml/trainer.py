@@ -121,12 +121,12 @@ class MjCambrianTrainer:
             agent_models[agent_name].save(model_path)
             print("created and saved initial model for agent:", agent_name, "at", model_path)
 
-        iterations = 1
+        iterations = 2
         total_timesteps = self._config.trainer.total_timesteps
         orig_log_path = callbacks[j].callbacks[0].log_path
 
         for i in range(iterations):
-            for j in range(len(agent_names)):
+            for j, agent_name in enumerate(agent_names):
                 log_path = Path(orig_log_path) / agent_names[j] / f'{i+1}/'
                 log_path.mkdir(parents=True, exist_ok=True)
                 print("[INFO] Iteration: ", i)
@@ -134,7 +134,8 @@ class MjCambrianTrainer:
                 callbacks[j].callbacks[0].log_path = log_path
                 callbacks[j].callbacks[0].callback.callbacks[0].evaldir = log_path
                 callbacks[j].callbacks[0].callback.callbacks[1].evaldir = log_path
-                agent_models[agent_names[j]].learn(total_timesteps=total_timesteps, callback=callbacks[j])
+                multiplier = 2 if agent_name == 'agent_prey' else 1
+                agent_models[agent_names[j]].learn(total_timesteps=total_timesteps * multiplier, callback=callbacks[j])
                 print("[INFO] Finished training the agent:", agent_names[j])
                 print("[INFO] Saving model of",  agent_names[j], "to", self._config.expdir)
                 save_path = Path(self._config.expdir) / f'{agent_names[j]}_model.zip'
@@ -164,12 +165,12 @@ class MjCambrianTrainer:
     ) -> float:
         self._config.save(self._config.expdir / "eval_config.yaml")
 
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name= 'agent_predator')
+        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name= 'agent_prey')
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
         model = self._make_model(eval_env)
         # if load_if_exists and (self._config.expdir / "best_model.zip").exists():
         get_logger().info("Loading best model...")
-        model = model.load("/home/neo/Projects/vi/project/ACI/logs/2025-05-13/exp_detection/best_model.zip")
+        model = model.load("/home/neo/Projects/vi/project/ACI/logs/2025-05-16/exp_detection/05-14-50/agent_prey_model.zip")
 
         # Save the eval environments xml
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped

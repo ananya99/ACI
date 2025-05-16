@@ -98,17 +98,15 @@ def reward_fn_done(
         truncation_reward (float): The reward to give the agent if the episode is
             truncated. Defaults to 0.
     """
-    # print(f'Terminated reward: {termination_reward}')
-    if agent.config.use_privileged_action:
-        return 0.0
+    # if agent.name != env.training_agent_name:
+    #     return 0.0
     def calc_reward():
         reward = 0.0
-        
         if terminated:
             reward += termination_reward
         if truncated:
             reward += truncation_reward
-        # if(terminated):
+        # if(truncated):
         #     print('printing inside calc_reward',terminated,truncated)
         #     print(reward, termination_reward, truncation_reward)
         return reward
@@ -245,11 +243,12 @@ def reward_fn_has_contacts(
     truncated: bool,
     info: Dict[str, Any],
     *,
+    for_agents: Optional[List[str]] = None,
     reward: float,
     **kwargs,
 ) -> float:
     """Rewards the agent if it has contacts."""
-    if agent.config.use_privileged_action:
+    if agent.name != env.training_agent_name or not agent_selected(agent,for_agents):
         return 0.0
     return apply_reward_fn(
         env,

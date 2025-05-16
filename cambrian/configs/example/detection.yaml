@@ -17,4 +17,4 @@ env:
         eye:
           resolution: [20, 20]
           num_eyes: [1, 3]
-          lon_range: [-30, 30]
+          lon_range: [-120, 120]

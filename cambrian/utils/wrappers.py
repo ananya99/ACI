@@ -339,8 +339,9 @@ class MjCambiranMaskWrapper(gym.Wrapper):
                 filtered_obs[key] = value
             else:
                 adversary_obs[key] = value
-
         self.env.unwrapped._overlays['adversary_obs'] = adversary_obs
+        if(reward > 3):
+            print(reward,self._training_agent.name)
         return filtered_obs, reward, terminated, truncated, info
 
     @property

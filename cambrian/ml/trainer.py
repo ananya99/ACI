@@ -121,7 +121,7 @@ class MjCambrianTrainer:
             agent_models[agent_name].save(model_path)
             print("created and saved initial model for agent:", agent_name, "at", model_path)
 
-        iterations = 1
+        iterations = 2
         total_timesteps = self._config.trainer.total_timesteps
         orig_log_path = callbacks[j].callbacks[0].log_path
 
@@ -140,6 +140,8 @@ class MjCambrianTrainer:
                 save_path = Path(self._config.expdir) / f'{agent_names[j]}_model.zip'
                 os.remove(save_path)
                 agent_models[agent_names[j]].save(save_path)
+                for k in range(len(envs[1-j].envs)):
+                    envs[1-j].envs[k].unwrapped._agents[agent_names[j]].model_exists = False
 
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()

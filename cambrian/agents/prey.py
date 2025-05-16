@@ -42,6 +42,7 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         assert self._predator in env.agents, f"Predator {self._predator} not found in env"
         if not self.model_exists:
             if os.path.exists(self.model_path):
+                print('[INFO] Loading model of prey')
                 self.prey_model = MjCambrianModel.load(self.model_path)
                 self.model_exists = True
         if self.prey_model is None:
@@ -50,10 +51,6 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         # random_selector = np.random.random()
         # if random_selector > 0.75:
         obs = env._overlays.get('adversary_obs', False)
-        # This is for check to work as the model won't exist at that time
-        if self.prey_model is None:
-            # print(f'Prey Model not found')
-            return [-1.0, 0.0]
         action = self.prey_model.predict(obs, deterministic=True)
         action = action[0]
         # self.delta = action - self.prev_action

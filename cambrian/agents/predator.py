@@ -45,6 +45,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         #         return action
         if not self.model_exists:
             if os.path.exists(self.model_path):
+                print('[INFO] Loading model of predator')
                 self.predator_model = MjCambrianModel.load(self.model_path)
                 self.model_exists = True
         # This is for check to work as the model won't exist at that time

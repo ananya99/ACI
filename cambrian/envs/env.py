@@ -470,6 +470,13 @@ class MjCambrianEnv(ParallelEnv, Env):
                 overlays.append(overlay)
         return overlays
 
+    def set_model_exists(self, agent_name: str, value: bool):
+        if agent_name in self._agents:
+            self._agents[agent_name].model_exists = value
+        else:
+            raise ValueError(f"Agent '{agent_name}' not found in _agents")
+
+
     @property
     def name(self) -> str:
         """Returns the name of the environment."""

@@ -134,13 +134,14 @@ class MjCambrianTrainer:
                 callbacks[j].callbacks[0].log_path = log_path
                 callbacks[j].callbacks[0].callback.callbacks[0].evaldir = log_path
                 callbacks[j].callbacks[0].callback.callbacks[1].evaldir = log_path
-                multiplier = 2 if agent_name == 'agent_prey' else 1
+                multiplier = 1 if agent_name == 'agent_prey' else 1
                 agent_models[agent_names[j]].learn(total_timesteps=total_timesteps * multiplier, callback=callbacks[j])
                 print("[INFO] Finished training the agent:", agent_names[j])
                 print("[INFO] Saving model of",  agent_names[j], "to", self._config.expdir)
                 save_path = Path(self._config.expdir) / f'{agent_names[j]}_model.zip'
                 os.remove(save_path)
                 agent_models[agent_names[j]].save(save_path)
+                envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
 
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()

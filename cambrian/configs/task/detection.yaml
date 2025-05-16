@@ -51,7 +51,7 @@ env:
       _target_: cambrian.envs.reward_fns.reward_fn_has_contacts
       _partial_: true
       reward: -1.0
-      for_agents: ${glob:agent_predator,${oc.dict.keys:env.agents}}
+      for_agents: ${glob:agent_*,${oc.dict.keys:env.agents}}
 
     penalize_time:
       _target_: cambrian.envs.reward_fns.reward_fn_constant

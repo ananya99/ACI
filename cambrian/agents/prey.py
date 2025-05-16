@@ -42,7 +42,8 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         assert self._predator in env.agents, f"Predator {self._predator} not found in env"
         if not self.model_exists:
             if os.path.exists(self.model_path):
-                print('[INFO] Loading model of prey')
+                print(f'[INFO] Prey Model is {self.prey_model}, need to load again')
+                print(f'[INFO] Loading model of prey from {self.model_path}')
                 self.prey_model = MjCambrianModel.load(self.model_path)
                 self.model_exists = True
         if self.prey_model is None:

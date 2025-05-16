@@ -129,7 +129,7 @@ class MjCambrianTrainer:
             for j in range(len(agent_names)):
                 log_path = Path(orig_log_path) / agent_names[j] / f'{i+1}/'
                 log_path.mkdir(parents=True, exist_ok=True)
-                print("[INFO] Iteration: ", i)
+                print("[INFO] Iteration: ", i+1)
                 print(f"[INFO] Training agent: {agent_names[j]} using model of agent: {agent_names[1-j]}")
                 callbacks[j].callbacks[0].log_path = log_path
                 callbacks[j].callbacks[0].callback.callbacks[0].evaldir = log_path
@@ -137,11 +137,21 @@ class MjCambrianTrainer:
                 agent_models[agent_names[j]].learn(total_timesteps=total_timesteps, callback=callbacks[j])
                 print("[INFO] Finished training the agent:", agent_names[j])
                 print("[INFO] Saving model of",  agent_names[j], "to", self._config.expdir)
-                save_path = Path(self._config.expdir) / f'{agent_names[j]}_model.zip'
-                os.remove(save_path)
+                save_path = Path(self._config.expdir) / f'evaluations/{agent_names[j]}/{i+1}/{agent_names[j]}_model.zip'
                 agent_models[agent_names[j]].save(save_path)
                 for k in range(len(envs[1-j].envs)):
+                    if agent_names[j] == 'agent_prey':
+                        envs[1-j].envs[k].unwrapped._agents[agent_names[j]].prey_model = None
+                    else:
+                        envs[1-j].envs[k].unwrapped._agents[agent_names[j]].predator_model = None
                     envs[1-j].envs[k].unwrapped._agents[agent_names[j]].model_exists = False
+                    envs[1-j].envs[k].unwrapped._agents[agent_names[j]].model_path = save_path
+                    if agent_names[j] == 'agent_prey':
+                        eval_envs[1-j].envs[k].unwrapped._agents[agent_names[j]].prey_model = None
+                    else:
+                        eval_envs[1-j].envs[k].unwrapped._agents[agent_names[j]].predator_model = None
+                    eval_envs[1-j].envs[k].unwrapped._agents[agent_names[j]].model_exists = False
+                    eval_envs[1-j].envs[k].unwrapped._agents[agent_names[j]].model_path = save_path
 
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()

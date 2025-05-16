@@ -35,7 +35,7 @@ env:
       scale_by_quickness: true
       termination_reward: 5.0
       truncation_reward: -5.0
-      disable_on_max_episode_steps: true
+      disable_on_max_episode_steps: false
       for_agents: ${glob:agent_predator,${oc.dict.keys:env.agents}}
 
     reward_if_prey_done:
@@ -44,7 +44,7 @@ env:
       scale_by_quickness: false
       termination_reward: -5.0
       truncation_reward: 5.0
-      disable_on_max_episode_steps: true
+      disable_on_max_episode_steps: false
       for_agents: ${glob:agent_prey,${oc.dict.keys:env.agents}}
 
     penalize_if_has_contacts:
@@ -80,16 +80,16 @@ eval_env:
       scale_by_quickness: true
       termination_reward: 5.0
       truncation_reward: -5.0
-      disable_on_max_episode_steps: true
+      disable_on_max_episode_steps: false
       for_agents: ${glob:agent_predator,${oc.dict.keys:env.agents}}
 
     reward_if_prey_done:
       _target_: cambrian.envs.reward_fns.reward_fn_done
       _partial_: true
-      scale_by_quickness: true
+      scale_by_quickness: false
       termination_reward: -5.0
       truncation_reward: 5.0
-      disable_on_max_episode_steps: true
+      disable_on_max_episode_steps: false
       for_agents: ${glob:agent_prey,${oc.dict.keys:env.agents}}
 
     penalize_if_has_contacts:

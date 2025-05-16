@@ -828,7 +828,7 @@ class MjCambrianRenderer:
         path: Path | str,
         *,
         save_mode: Optional[MjCambrianRendererSaveMode] = None,
-        fps: int = 50,
+        fps: int = 15,
     ):
         save_mode = save_mode or self._config.save_mode
         duration = 1000 / fps

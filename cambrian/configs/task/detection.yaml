@@ -34,16 +34,16 @@ env:
       _partial_: true
       scale_by_quickness: true
       termination_reward: 5.0
-      truncation_reward: ${eval:'-${.termination_reward}'}
+      truncation_reward: -5.0
       disable_on_max_episode_steps: true
       for_agents: ${glob:agent_predator,${oc.dict.keys:env.agents}}
 
     reward_if_prey_done:
       _target_: cambrian.envs.reward_fns.reward_fn_done
       _partial_: true
-      scale_by_quickness: true
+      scale_by_quickness: false
       termination_reward: -5.0
-      truncation_reward: ${eval:'-${.termination_reward}'}
+      truncation_reward: 5.0
       disable_on_max_episode_steps: true
       for_agents: ${glob:agent_prey,${oc.dict.keys:env.agents}}
 
@@ -63,9 +63,14 @@ env:
     terminate_if_close_to_goal:
       _target_: cambrian.envs.done_fns.done_if_close_to_agents
       _partial_: true
-      for_agents: ${glob:agent_predator,${oc.dict.keys:env.agents}}
-      to_agents: ${glob:agent_prey,${oc.dict.keys:env.agents}}
+      for_agents: ${glob:agent_*,${oc.dict.keys:env.agents}}
+      to_agents: ${glob:agent_*,${oc.dict.keys:env.agents}}
       distance_threshold: 1.0
+
+  truncation_fn:
+    truncate_if_exceeds_max_episode_steps:
+      _target_: cambrian.envs.done_fns.done_if_exceeds_max_episode_steps
+      _partial_: true
 
 eval_env:
   reward_fn:
@@ -74,7 +79,7 @@ eval_env:
       _partial_: true
       scale_by_quickness: true
       termination_reward: 5.0
-      truncation_reward: ${eval:'-${.termination_reward}'}
+      truncation_reward: -5.0
       disable_on_max_episode_steps: true
       for_agents: ${glob:agent_predator,${oc.dict.keys:env.agents}}
 
@@ -83,7 +88,7 @@ eval_env:
       _partial_: true
       scale_by_quickness: true
       termination_reward: -5.0
-      truncation_reward: ${eval:'-${.termination_reward}'}
+      truncation_reward: 5.0
       disable_on_max_episode_steps: true
       for_agents: ${glob:agent_prey,${oc.dict.keys:env.agents}}
 
@@ -103,6 +108,11 @@ eval_env:
     terminate_if_close_to_goal:
       _target_: cambrian.envs.done_fns.done_if_close_to_agents
       _partial_: true
-      for_agents: ${glob:agent_predator,${oc.dict.keys:env.agents}}
-      to_agents: ${glob:agent_prey,${oc.dict.keys:env.agents}}
+      for_agents: ${glob:agent_*,${oc.dict.keys:env.agents}}
+      to_agents: ${glob:agent_*,${oc.dict.keys:env.agents}}
       distance_threshold: 1.0
+
+  truncation_fn:
+    truncate_if_exceeds_max_episode_steps:
+      _target_: cambrian.envs.done_fns.done_if_exceeds_max_episode_steps
+      _partial_: true

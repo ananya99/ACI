@@ -185,12 +185,13 @@ class MjCambrianTrainer:
     ) -> float:
         self._config.save(self._config.expdir / "eval_config.yaml")
 
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name= 'agent_predator')
+        eval_env = self._make_env(self._config.eval_env, 1, monitor='eval_monitor.csv', training_agent_name='agent_predator')
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
         model = self._make_model(eval_env)
-        # if load_if_exists and (self._config.expdir / "best_model.zip").exists():
         get_logger().info("Loading best model...")
-        model = model.load("/home/neo/Projects/vi/project/ACI/logs/2025-05-13/exp_detection/best_model.zip")
+        predator_model_dir = '/Users/sathvikbhagavan/Documents/EPFL/Semester-2/CS-503/ACI/logs/2025-05-17/exp_detection/22-20-29'
+        predator_model_path = f'{predator_model_dir}/agent_predator_model.zip'
+        model = model.load(predator_model_path)
 
         # Save the eval environments xml
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
@@ -198,7 +199,7 @@ class MjCambrianTrainer:
         with open(self._config.expdir / "compiled_eval_env.xml", "w") as f:
             f.write(cambrian_env.spec.to_xml())
 
-        n_runs = self._config.eval_env.n_eval_episodes
+        n_runs = 30
         filename = self._config.eval_env.save_filename
         record_kwargs = dict(
             path=self._config.expdir / filename,

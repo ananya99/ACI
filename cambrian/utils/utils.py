@@ -71,19 +71,16 @@ def evaluate_policy(
         # don't set to `record_path is not None` directly bc this will delete overlays
         cambrian_env.record()
 
-    # print("cambrian_env.observation_spaces: ", cambrian_env.observation_spaces)
-    # print("cambrian_env.action_spaces: ", cambrian_env.action_spaces)
-    # print("cambrian_env.agents.keys: ", cambrian_env.agents.keys())
-
     run = 0
     obs = env.reset()
     get_logger().info(f"Starting {num_runs} evaluation run(s)...")
-    # print("obs after reset: ", obs.keys())
+    predator_wins = 0
     while run < num_runs:
         action, _ = model.predict(obs, deterministic=True)
         obs, reward, done, _ = env.step(action)
-        # print(reward)
         if done:
+            if cambrian_env.stashed_cumulative_reward > 0:
+                predator_wins += 1
             get_logger().info(
                 f"Run {run} done. "
                 f"Cumulative reward: {cambrian_env.stashed_cumulative_reward}"
@@ -103,7 +100,7 @@ def evaluate_policy(
     if record_kwargs is not None:
         cambrian_env.save(**record_kwargs)
         cambrian_env.record(False)
-
+    print(f'[INFO] The number of times predator won was: {predator_wins} / {num_runs}')
     return cambrian_env.stashed_cumulative_reward
 
 

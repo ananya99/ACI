@@ -142,6 +142,8 @@ class MjCambrianTrainer:
                 os.remove(save_path)
                 agent_models[agent_names[j]].save(save_path)
                 envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
+                eval_envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
+
 
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()

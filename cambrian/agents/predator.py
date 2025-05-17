@@ -48,7 +48,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         # This is for check to work as the model won't exist at that time
 
         random_selector = np.random.random()
-        if random_selector > 0.6:
+        if random_selector < 0.5:
             if self.predator_model is None:
             # print(f'Predator Model not found')
                 return [-1.0, 0.0]
@@ -59,7 +59,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
             self.prev_action = action
             self.extrapolation_step = 0
             return action
-        elif random_selector > 0.0:
+        elif random_selector < 1.0:
             self.extrapolation_step += 1
             return self.prev_action + self.extrapolation_step * self.delta
         else:

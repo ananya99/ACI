@@ -49,7 +49,7 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
             return [-1.0, 0.0]
 
         random_selector = np.random.random()
-        if random_selector > 0.6:
+        if random_selector < 0.5:
             obs = env._overlays.get('adversary_obs', False)
             # This is for check to work as the model won't exist at that time
             action = self.prey_model.predict(obs, deterministic=True)
@@ -58,7 +58,7 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
             self.prev_action = action
             self.extrapolation_step = 0
             return action
-        elif random_selector > 0.0:
+        elif random_selector < 1.0:
             self.extrapolation_step += 1
             return self.prev_action + self.extrapolation_step * self.delta
         else:

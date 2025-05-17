@@ -46,7 +46,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
                 self.predator_model = MjCambrianModel.load(self.model_path)
                 self.model_exists = True
         random_selector = np.random.random()
-        if random_selector > 0.3:
+        if random_selector >= 0.0:
             if self.predator_model is None:
                 print(f'[INFO] Predator Model not found')
                 return [-1.0, 0.0]

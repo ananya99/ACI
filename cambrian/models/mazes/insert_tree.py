@@ -8,7 +8,7 @@ maze_root = maze_tree.getroot().find('worldbody')
 
 # --- generate trees within maze boundaries ---
 terrain_half = (20, 20)
-for x,y in generate_random_tree_positions(terrain_half, num_trees=100, min_distance=1):
+for x,y in generate_random_tree_positions(terrain_half, num_trees=5, min_distance=1):
     # no further shift needed
     x_floor = x - 9.0    # because your floor is centered at X=-9
     y_floor = y + 0.0    # no Y‐offset
@@ -16,4 +16,4 @@ for x,y in generate_random_tree_positions(terrain_half, num_trees=100, min_dista
     maze_root.append(tree_body)
 
 # Step 4: Save the new XML
-maze_tree.write('cambrian/models/mazes/maze_2_with_forest.xml')
+maze_tree.write('cambrian/models/mazes/maze_2_with_5trees.xml')

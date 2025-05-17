@@ -1,0 +1,18 @@
+<mujoco name="maze">
+    <asset>
+        <material name="floor_mat_${parent:xml}" rgba="0.1 0.1 0.1 1.0" shininess="0.0" specular="0.0" />
+        <material name="snow" rgba="1 1 1 1" specular="0.3" shininess="10" reflectance="0.1" />
+        <material name="bark" rgba="0.55 0.27 0.07 1" />
+        <material name="leaves" rgba="0.0 0.5 0.0 1" />
+        <material name="grass" rgba="0.1 0.6 0.1 1" />
+    </asset>
+    <default>
+        <default class="maze_wall_${parent:xml}">
+            
+        </default>
+    </default>
+    <worldbody>
+        <geom name="floor_${parent:xml}" type="plane" size="10 10 0.1" material="grass" rgba="0.1 0.6 0.1 1" pos="0 0 0" condim="1" group="1" />
+    <body name="tree_-2.670488990858752_3.1179804225606613" pos="-2.670488990858752 3.1179804225606613 0"><geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" /><geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" /></body><body name="tree_-14.240858700600471_-8.094603814920676" pos="-14.240858700600471 -8.094603814920676 0"><geom type="cylinder" size="0.12 1.2" fromto="0 0 0 0 0 2.4" material="bark" /><geom type="sphere" size="0.35" pos="0 0 2.75" material="leaves" /></body><body name="tree_-12.61343046810751_7.934768932393073" pos="-12.61343046810751 7.934768932393073 0"><geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" /><geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" /></body><body name="tree_-10.757602543361784_2.212156921394861" pos="-10.757602543361784 2.212156921394861 0"><geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" /><geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" /></body><body name="tree_-2.4139827163565784_9.009466761679636" pos="-2.4139827163565784 9.009466761679636 0"><geom type="cylinder" size="0.08 0.8" fromto="0 0 0 0 0 1.6" material="bark" /><geom type="sphere" size="0.25" pos="0 0 1.85" material="leaves" /></body></worldbody>
+    
+</mujoco>

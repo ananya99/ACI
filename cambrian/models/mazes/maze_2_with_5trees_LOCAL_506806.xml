@@ -1,0 +1,18 @@
+<mujoco name="maze">
+    <asset>
+        <material name="floor_mat_${parent:xml}" rgba="0.1 0.1 0.1 1.0" shininess="0.0" specular="0.0" />
+        <material name="snow" rgba="1 1 1 1" specular="0.3" shininess="10" reflectance="0.1" />
+        <material name="bark" rgba="0.55 0.27 0.07 1" />
+        <material name="leaves" rgba="0.0 0.5 0.0 1" />
+        <material name="grass" rgba="0.1 0.6 0.1 1" />
+    </asset>
+    <default>
+        <default class="maze_wall_${parent:xml}">
+            <geom type="box" gap="0.05" margin="0.1" group="3" condim="1" />
+        </default>
+    </default>
+    <worldbody>
+        <geom name="floor_${parent:xml}" type="plane" size="10 10 0.1" material="grass" rgba="0.1 0.6 0.1 1" pos="0 0 0" condim="1" group="1" />
+    <body name="tree_0.3811532260248178_0.11245248397821506" pos="0.3811532260248178 0.11245248397821506 0"><geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" /><geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" /></body><body name="tree_-12.22563551096303_4.779128026864045" pos="-12.22563551096303 4.779128026864045 0"><geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" /><geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" /></body><body name="tree_-17.81983283514539_1.3149216142419462" pos="-17.81983283514539 1.3149216142419462 0"><geom type="cylinder" size="0.1 1.0" fromto="0 0 0 0 0 2" material="bark" /><geom type="sphere" size="0.3" pos="0 0 2.3" material="leaves" /></body><body name="tree_-14.951522411623467_3.283639649799854" pos="-14.951522411623467 3.283639649799854 0"><geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" /><geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" /></body><body name="tree_-2.8775328068551964_-2.4128511753164537" pos="-2.8775328068551964 -2.4128511753164537 0"><geom type="cylinder" size="0.15 1.5" fromto="0 0 0 0 0 3" material="bark" /><geom type="sphere" size="0.4" pos="0 0 3.4" material="leaves" /></body></worldbody>
+    
+</mujoco>

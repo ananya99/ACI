@@ -71,7 +71,7 @@ def reward_fn_constant(
     **kwargs,
 ) -> float:
     """Returns a constant reward."""
-    if not agent_selected(agent, for_agents) :
+    if agent.name != env.training_agent_name or  not agent_selected(agent, for_agents):
         return 0.0
     return apply_reward_fn(env, agent, reward_fn=lambda: reward,**kwargs)
 

@@ -164,6 +164,7 @@ class MjCambrianEvalCallback(EvalCallback):
         :param locals_:
         :param globals_:
         """
+        import wandb
         env: MjCambrianEnv = self.eval_env.envs[0].unwrapped
 
         # If done, do some logging
@@ -171,6 +172,42 @@ class MjCambrianEvalCallback(EvalCallback):
             run = locals_["episode_counts"][locals_["i"]]
             cumulative_reward = env.stashed_cumulative_reward
             get_logger().info(f"Run {run} done. Cumulative reward: {cumulative_reward}")
+
+            # Get win status from environment info
+            info = locals_.get("info", {})
+            terminated = locals_.get("terminated", {})
+            truncated = locals_.get("truncated", {})
+
+            # Update win counts for percentage calculation
+            if not hasattr(self, "_predator_wins"):
+                self._predator_wins = 0
+                self._prey_wins = 0
+                self._total_episodes = 0
+
+            self._total_episodes += 1
+            
+            # A predator wins if it catches the prey (terminated[prey] is True)
+            # A prey wins if it survives until timeout (truncated[prey] is True)
+            for agent_name, agent_terminated in terminated.items():
+                if "predator" in agent_name.lower() and agent_terminated:
+                    self._predator_wins += 1
+                    break
+            for agent_name, agent_truncated in truncated.items():
+                if "prey" in agent_name.lower() and agent_truncated:
+                    self._prey_wins += 1
+                    break
+
+            # Calculate and log win percentages
+            predator_win_pct = (self._predator_wins / self._total_episodes) * 100
+            prey_win_pct = (self._prey_wins / self._total_episodes) * 100
+
+            # Log to wandb
+            wandb.log({
+                "eval/predator_win_percentage": predator_win_pct,
+                "eval/prey_win_percentage": prey_win_pct,
+                "eval/episode": self._total_episodes,
+                "eval/cumulative_reward": cumulative_reward
+            }, step=self.num_timesteps)
 
         super()._log_success_callback(locals_, globals_)
 

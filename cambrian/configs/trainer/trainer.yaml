@@ -14,5 +14,5 @@ max_episode_steps: 256
 n_envs: 2
 timesteps_decay: 0.8
 agent_multiplier: 1.5
-
+iterations: 5
 prune_fn: null

@@ -346,6 +346,9 @@ class WandbCallback(BaseCallback):
         self.project_name = project_name
         self.run_name = run_name
         self.config = config or {}
+        self.training_agent_name = None
+        self.iteration = 0
+        self.steps = 0
         
     def _on_training_start(self) -> None:
         """Initialize wandb at the start of training."""
@@ -368,12 +371,18 @@ class WandbCallback(BaseCallback):
                 if done:
                     episode_info = self.locals["infos"][i]
                     wandb.log({
-                        "train/episode_length": episode_info.get("episode", {}).get("l", 0),
+                        "train/ep_len": episode_info.get("episode", {}).get("l", 0),
+                        "train/ep_rew": episode_info.get("episode", {}).get("r", 0),
                         "train/prey_win": int(episode_info.get("episode", {}).get("l", 0) == 256),
-                        "train/episode_reward": episode_info.get("episode", {}).get("r", 0),
+                        "train/predator_win": int(episode_info.get("episode", {}).get("l", 0) < 256),
                         "train/global_step": self.num_timesteps,
+                        "train/iteration": self.iteration,
                     })
-        
+                    wandb.log({
+                        f"train/iter_{self.iteration}_{self.training_agent_name}_ep_rew": episode_info.get("episode", {}).get("r", 0),
+                        f"train/iter_{self.iteration}_{self.training_agent_name}_ep_len": episode_info.get("episode", {}).get("l", 0),
+                    }, step=self.steps)
+        self.steps += 1
         return True
     
     def _on_rollout_end(self) -> None:

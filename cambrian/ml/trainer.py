@@ -55,6 +55,7 @@ class MjCambrianTrainerConfig(HydraContainerConfig):
     n_envs: int
     agent_multiplier: float
     timesteps_decay: float
+    iterations: int
 
 
     model: Callable[[MjCambrianEnv], MjCambrianModel]
@@ -126,7 +127,7 @@ class MjCambrianTrainer:
             agent_models[agent_name].save(model_path)
             print("created and saved initial model for agent:", agent_name, "at", model_path)
 
-        iterations = 3
+        iterations = self._config.trainer.iterations
         total_timesteps = self._config.trainer.total_timesteps
         timesteps_decay = self._config.trainer.timesteps_decay
 
@@ -141,6 +142,9 @@ class MjCambrianTrainer:
                 callbacks[j].callbacks[0].log_path = log_path
                 callbacks[j].callbacks[0].callback.callbacks[0].evaldir = log_path
                 callbacks[j].callbacks[0].callback.callbacks[1].evaldir = log_path
+                callbacks[j].callbacks[2].training_agent_name = agent_names[j]
+                callbacks[j].callbacks[2].iteration = i+1
+                callbacks[j].callbacks[2].steps = 0
                 agent_multiplier = self._config.trainer.agent_multiplier if agent_names[j] == 'agent_prey' else 1
                 agent_models[agent_names[j]].learn(total_timesteps=int(total_timesteps*agent_multiplier), callback=callbacks[j])
                 print("[INFO] Finished training the agent:", agent_names[j])

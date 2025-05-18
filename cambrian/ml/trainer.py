@@ -17,6 +17,8 @@ from cambrian.ml.model import MjCambrianModel
 from cambrian.utils import evaluate_policy
 from cambrian.utils.logger import get_logger
 from cambrian.utils.wrappers import make_wrapped_env
+import wandb
+
 import os
 if TYPE_CHECKING:
     from cambrian import MjCambrianConfig
@@ -51,6 +53,9 @@ class MjCambrianTrainerConfig(HydraContainerConfig):
     total_timesteps: int
     max_episode_steps: int
     n_envs: int
+    agent_multiplier: float
+    timesteps_decay: float
+
 
     model: Callable[[MjCambrianEnv], MjCambrianModel]
     callbacks: Dict[str, BaseCallback | Callable[[VecEnv], BaseCallback]]
@@ -93,7 +98,7 @@ class MjCambrianTrainer:
 
         # Setup the environment, model, and callbacks
         # Training order
-        agent_names = ['agent_predator', 'agent_prey']
+        agent_names = ['agent_predator','agent_prey']
 
         env = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor.csv", training_agent_name=agent_names[0])
         env2 = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor2.csv", training_agent_name=agent_names[1])
@@ -121,8 +126,10 @@ class MjCambrianTrainer:
             agent_models[agent_name].save(model_path)
             print("created and saved initial model for agent:", agent_name, "at", model_path)
 
-        iterations = 2
+        iterations = 3
         total_timesteps = self._config.trainer.total_timesteps
+        timesteps_decay = self._config.trainer.timesteps_decay
+
         orig_log_path = callbacks[j].callbacks[0].log_path
 
         for i in range(iterations):
@@ -134,14 +141,16 @@ class MjCambrianTrainer:
                 callbacks[j].callbacks[0].log_path = log_path
                 callbacks[j].callbacks[0].callback.callbacks[0].evaldir = log_path
                 callbacks[j].callbacks[0].callback.callbacks[1].evaldir = log_path
-                multiplier = 1 if agent_name == 'agent_prey' else 1
-                agent_models[agent_names[j]].learn(total_timesteps=total_timesteps*multiplier, callback=callbacks[j])
+                agent_multiplier = self._config.trainer.agent_multiplier if agent_names[j] == 'agent_prey' else 1
+                agent_models[agent_names[j]].learn(total_timesteps=int(total_timesteps*agent_multiplier), callback=callbacks[j])
                 print("[INFO] Finished training the agent:", agent_names[j])
                 save_path = Path(self._config.expdir) / f'{agent_names[j]}_model.zip'
                 print("[INFO] Saving model of",  save_path)
                 agent_models[agent_names[j]].save(save_path)
                 envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
                 eval_envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
+            total_timesteps *= timesteps_decay
+            
 
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()
@@ -149,6 +158,7 @@ class MjCambrianTrainer:
         # Calculate fitness
         fitness = self._config.trainer.fitness_fn(self._config)
         get_logger().info(f"Final Fitness: {fitness}")
+        wandb.finish()
 
         # Save the final fitness to a file
         with open(self._config.expdir / "train_fitness.txt", "w") as f:

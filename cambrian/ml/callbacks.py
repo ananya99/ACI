@@ -64,12 +64,13 @@ class MjCambrianPlotMonitorCallback(BaseCallback):
         # Temporarily set the monitor ext so that the right file is read
         old_ext = Monitor.EXT
         Monitor.EXT = str(self.filename_csv)
+        l = load_results(self.logdir).l.values == 256
         x, y = ts2xy(load_results(self.logdir), "timesteps")
         Monitor.EXT = old_ext
-        if len(x) <= 20 or len(y) <= 20:
+        if len(x) <= 20 or len(y) <= 20 or len(l) <= 20:
             get_logger().warning(f"Not enough {self.filename} data to plot.")
             return True
-        original_x, original_y = x.copy(), y.copy()
+        original_x, original_y, original_l = x.copy(), y.copy(), l.copy()
 
         get_logger().info(f"Plotting {self.filename} results at {self.evaldir}")
 
@@ -78,6 +79,7 @@ class MjCambrianPlotMonitorCallback(BaseCallback):
 
         n = min(len(y) // 10, 1000)
         y = y.astype(float)
+        l = l.astype(float)
 
         if self.n_episodes > 1:
             assert len(y) % self.n_episodes == 0, (
@@ -85,14 +87,17 @@ class MjCambrianPlotMonitorCallback(BaseCallback):
                 f" number of episodes in the {self.filename} data."
             )
             y = y.reshape(-1, self.n_episodes).mean(axis=1)
+            l = l.reshape(-1, self.n_episodes).mean(axis=1)
         else:
             y = moving_average(y, window=n)
+            l = moving_average(l, window=n)
 
         x = moving_average(x, window=n).astype(int)
 
+
         # Make sure the x, y are of the same length
         min_len = min(len(x), len(y))
-        x, y = x[:min_len], y[:min_len]
+        x, y, l = x[:min_len], y[:min_len], l[:min_len]
 
         plt.plot(x, y)
         plt.plot(original_x, original_y, color="grey", alpha=0.3)
@@ -100,6 +105,14 @@ class MjCambrianPlotMonitorCallback(BaseCallback):
         plt.xlabel("Number of Timesteps")
         plt.ylabel("Rewards")
         plt.savefig(self.evaldir / self.filename.with_suffix(".png"))
+        plt.cla()
+
+        plt.plot(x, l)
+        plt.plot(original_x, original_l, color="grey", alpha=0.3)
+
+        plt.xlabel("Number of Timesteps")
+        plt.ylabel("Winrate")
+        plt.savefig(self.evaldir / Path(self.filename.name + "_winrate").with_suffix(".png"))
         plt.cla()
 
         return True
@@ -356,6 +369,7 @@ class WandbCallback(BaseCallback):
                     episode_info = self.locals["infos"][i]
                     wandb.log({
                         "train/episode_length": episode_info.get("episode", {}).get("l", 0),
+                        "train/prey_win": int(episode_info.get("episode", {}).get("l", 0) == 256),
                         "train/episode_reward": episode_info.get("episode", {}).get("r", 0),
                         "train/global_step": self.num_timesteps,
                     })
@@ -376,5 +390,6 @@ class WandbCallback(BaseCallback):
     
     def _on_training_end(self) -> None:
         """Close wandb at the end of training."""
-        import wandb
-        wandb.finish()
+        return None
+        # import wandb
+        # wandb.finish()

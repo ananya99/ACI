@@ -25,6 +25,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         self._speed = speed
         self._capture_threshold = capture_threshold
         self.model_path = os.path.join(self.config.model_path, 'agent_predator_model.zip')
+        self.extrapolation_fraction = self.config.extrapolation_fraction
         self.model_exists = False
         if os.path.exists(self.model_path):
             self.predator_model = MjCambrianModel.load(self.model_path)
@@ -42,13 +43,13 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         assert self._prey in env.agents, f"Prey {self._prey} not found in env"
         if not self.model_exists:
             if os.path.exists(self.model_path):
-                print(f'[INFO] Loading model of predator from {self.model_path}')
+                # print(f'[INFO] Loading model of predator from {self.model_path}')
                 self.predator_model = MjCambrianModel.load(self.model_path)
                 self.model_exists = True
         random_selector = np.random.random()
-        if random_selector > 0.3:
+        if random_selector < self.extrapolation_fraction:
             if self.predator_model is None:
-                print(f'[INFO] Predator Model not found')
+                # print(f'[INFO] Predator Model not found')
                 return [-1.0, 0.0]
             obs = env._overlays.get('adversary_obs', False)
             action = self.predator_model.predict(obs, deterministic=True)

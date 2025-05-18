@@ -107,6 +107,7 @@ class MjCambrianAgentConfig(HydraContainerConfig):
 
     eyes: Dict[str, MjCambrianEyeConfig]
     model_path: str
+    extrapolation_fraction: float
 
 
 class MjCambrianAgent:

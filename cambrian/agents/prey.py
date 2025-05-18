@@ -25,6 +25,7 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         self._speed = speed
         self._safe_distance = safe_distance
         self.model_path = os.path.join(self.config.model_path, 'agent_prey_model.zip')
+        self.extrapolation_fraction = self.config.extrapolation_fraction
         self.model_exists = False
         if os.path.exists(self.model_path):
             self.prey_model = MjCambrianModel.load(self.model_path)
@@ -46,9 +47,9 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
                 self.prey_model = MjCambrianModel.load(self.model_path)
                 self.model_exists = True
         random_selector = np.random.random()
-        if random_selector > 0.3:
+        if random_selector > self.extrapolation_fraction:
             if self.prey_model is None:
-                print(f'[INFO] Prey Model not found')
+                # print(f'[INFO] Prey Model not found')
                 return [-1.0, 0.0]
             obs = env._overlays.get('adversary_obs', False)
             action = self.prey_model.predict(obs, deterministic=True)

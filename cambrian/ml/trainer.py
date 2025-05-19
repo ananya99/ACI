@@ -124,9 +124,10 @@ class MjCambrianTrainer:
         for j, agent_name in enumerate(agent_names):
             model_path = os.path.join(self._config.expdir, agent_name+'_model.zip')
             agent_models[agent_name] = self._make_model(envs[j])
-            agent_models[agent_name].save(model_path)
+            # agent_models[agent_name].save(model_path)
             print("created and saved initial model for agent:", agent_name, "at", model_path)
 
+        iterations = self._config.trainer.iterations
         iterations = self._config.trainer.iterations
         total_timesteps = self._config.trainer.total_timesteps
         timesteps_decay = self._config.trainer.timesteps_decay
@@ -145,6 +146,11 @@ class MjCambrianTrainer:
                 callbacks[j].callbacks[2].training_agent_name = agent_names[j]
                 callbacks[j].callbacks[2].iteration = i+1
                 callbacks[j].callbacks[2].steps = 0
+                callbacks[j].callbacks[2].training_agent_name = agent_names[j]
+                callbacks[j].callbacks[2].iteration = i+1
+                callbacks[j].callbacks[2].steps = 0
+                win_rate_threshold = callbacks[j].callbacks[3].threshold
+                callbacks[j].callbacks[3].threshold = win_rate_threshold if agent_names[j] == 'agent_prey' else 1 - win_rate_threshold
                 agent_multiplier = self._config.trainer.agent_multiplier if agent_names[j] == 'agent_prey' else 1
                 agent_models[agent_names[j]].learn(total_timesteps=int(total_timesteps*agent_multiplier), callback=callbacks[j])
                 print("[INFO] Finished training the agent:", agent_names[j])

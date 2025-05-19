@@ -26,6 +26,22 @@ from cambrian.ml.model import MjCambrianModel
 from cambrian.utils.logger import get_logger
 
 
+class StopTrainingOnWinrateThreshold(BaseCallback):
+    def __init__(self, threshold: float, window: int, verbose=0):
+        super().__init__(verbose)
+        self.threshold = threshold
+        self.window = window
+
+    def _on_step(self) -> bool:
+        if len(self.model.ep_info_buffer) >= self.window:
+            winrate = np.mean(np.array([ep_info['l'] for ep_info in self.model.ep_info_buffer])[-self.window:] == 256)
+            if winrate > self.threshold:
+                if self.verbose:
+                    print(f"Stopping training: mean reward {winrate:.2f} > threshold {self.threshold}")
+                self.model.stop_training = True
+        return True
+
+
 class MjCambrianPlotMonitorCallback(BaseCallback):
     """Should be used with an EvalCallback to plot the evaluation results.
 

@@ -29,7 +29,7 @@ def parse_evaluations_npz(evaluations_npz: Path) -> Dict[str, np.ndarray]:
 def parse_monitor_csv(monitor_csv: Path) -> Tuple[np.ndarray, np.ndarray]:
     """Parse the monitor csv file and return the timesteps and rewards."""
     assert monitor_csv.exists(), f"Monitor file {monitor_csv} does not exist."
-    timesteps, rewards = [], []
+    timesteps, rewards, episode_lengths = [], [], []
     with open(monitor_csv, "r") as f:
         # Skip the comment line
         f.readline()
@@ -38,8 +38,9 @@ def parse_monitor_csv(monitor_csv: Path) -> Tuple[np.ndarray, np.ndarray]:
         for row in csv_reader:
             timesteps.append(float(row["t"]))
             rewards.append(float(row["r"]))
+            episode_lengths.append(int(float(row["l"])))
 
-    return np.array(timesteps), np.array(rewards)
+    return np.array(timesteps), np.array(episode_lengths), np.array(rewards)
 
 
 def top_n_percent(
@@ -153,21 +154,12 @@ def fitness_from_monitor(
         - If the rewards are empty, returns negative infinity as the fitness value.
         - The monitor data should contain timesteps and corresponding rewards.
     """
-    timesteps, rewards = parse_monitor_csv(monitor_csv)
-
-    if len(rewards) == 0:
-        return -float("inf")
-
-    assert len(rewards) % n_episodes == 0, (
-        "n_episodes must be a common factor of the"
-        " number of episodes in the monitor data."
-    )
-    timesteps = timesteps.reshape(-1, n_episodes).mean(axis=1)
-    rewards = rewards.reshape(-1, n_episodes).sum(axis=1)
-
-    fitness = top_n_percent(rewards, percent, use_outliers=False)
-    if return_data:
-        return fitness, (timesteps, rewards)
+    _, episode_lengths, rewards = parse_monitor_csv(monitor_csv)
+    total_episodes = episode_lengths.shape[0]
+    prey_wins_ratio = (episode_lengths == 256).sum() / total_episodes
+    predator_wins_ratio = 1 - prey_wins_ratio
+    fitness = float(np.abs(predator_wins_ratio - prey_wins_ratio))
+    print(f'[INFO] Prey: {prey_wins_ratio}, Predator: {predator_wins_ratio}, Fitness score: {fitness}')
     return fitness
 
 

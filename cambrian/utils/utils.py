@@ -19,7 +19,7 @@ import mujoco as mj
 import numpy as np
 from stable_baselines3.common.utils import get_device
 from stable_baselines3.common.vec_env import VecEnv
-
+import pandas as pd
 from cambrian.utils.logger import get_logger
 
 if TYPE_CHECKING:
@@ -38,6 +38,7 @@ def evaluate_policy(
     env: VecEnv,
     model: "MjCambrianModel",
     num_runs: int,
+    file_path: str,
     *,
     record_kwargs: Optional[Dict[str, Any]] = None,
     step_callback: Optional[Callable[["MjCambrianEnv"], bool | None]] = lambda _: True,
@@ -71,25 +72,34 @@ def evaluate_policy(
         # don't set to `record_path is not None` directly bc this will delete overlays
         cambrian_env.record()
 
+    with open(file_path, 'r') as f:
+        comment_line = f.readline()
+    df = pd.read_csv(file_path, skiprows=1)
     run = 0
     obs = env.reset()
     get_logger().info(f"Starting {num_runs} evaluation run(s)...")
     predator_wins = 0
     while run < num_runs:
-        action, _ = model.predict(obs, deterministic=True)
-        obs, reward, done, _ = env.step(action)
-        if done:
-            if cambrian_env.stashed_cumulative_reward > 0:
-                predator_wins += 1
-            get_logger().info(
-                f"Run {run} done. "
-                f"Cumulative reward: {cambrian_env.stashed_cumulative_reward}"
-            )
-
-            if done_callback(run) is False:
+        episode_length = 0
+        obs = env.reset()
+        while True:
+            action, _ = model.predict(obs, deterministic=True)
+            obs, reward, done, _ = env.step(action)
+            episode_length += 1
+            if done:
+                if episode_length != 256:
+                    predator_wins += 1
+                new_row = [reward[0], episode_length, 0]
+                df.loc[len(df)] = new_row
+                get_logger().info(
+                    f"Run {run} done. "
+                    f"Cumulative reward: {cambrian_env.stashed_cumulative_reward}"
+                )
+                run += 1
                 break
-
-            run += 1
+                
+        if done_callback(run) is False:
+                    break
 
         if step_callback(cambrian_env) is False:
             break
@@ -101,6 +111,9 @@ def evaluate_policy(
         cambrian_env.save(**record_kwargs)
         cambrian_env.record(False)
     print(f'[INFO] The number of times predator won was: {predator_wins} / {num_runs}')
+    with open(file_path, 'w') as f:
+        f.write(comment_line)
+        df.to_csv(f, index=False)
     return cambrian_env.stashed_cumulative_reward
 
 

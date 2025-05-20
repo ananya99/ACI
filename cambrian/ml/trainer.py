@@ -18,7 +18,7 @@ from cambrian.utils import evaluate_policy
 from cambrian.utils.logger import get_logger
 from cambrian.utils.wrappers import make_wrapped_env
 import wandb
-
+from cma import CMAEvolutionStrategy
 import os
 if TYPE_CHECKING:
     from cambrian import MjCambrianConfig
@@ -160,7 +160,16 @@ class MjCambrianTrainer:
                 eval_envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
             total_timesteps *= timesteps_decay
             
-
+        # Eval
+        n_runs = 200
+        file_path_eval_monitor = Path(self._config.expdir) / 'eval_monitor.csv'
+        model_predator = self._make_model(eval_env)
+        eval_env.env_method("set_model_exists", "agent_prey", False)
+        model_predator.load(os.path.join(self._config.expdir, 'agent_predator_model.zip'))
+        evaluate_policy(
+            eval_env, model_predator, n_runs, file_path_eval_monitor
+        )
+        
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()
 

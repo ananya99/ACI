@@ -1,7 +1,7 @@
 xml:
   _target_: cambrian.utils.cambrian_xml.MjCambrianXML.parse
   _convert_: all
-  xml_string: ${read:${path:${package:},models,mazes,maze_2_with_forest.xml}}
+  xml_string: ${read:${path:${package:},models,mazes,maze_2_with_5trees.xml}}
 
 enabled: True
 

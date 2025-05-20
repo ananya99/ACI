@@ -15,11 +15,11 @@ expsubdir: ${now:%H-%M-%S}/generation_${evo.generation}/rank_${evo.rank}
 # Now, update the evo variables
 evo:
   # How many agents are in a single generation.
-  population_size: 3
+  population_size: 5
 
   # The rank is essentially the unique id for an agent within a generation.
   rank: ${eval:'int(${hydra_select:job.num, 0} % ${.population_size})'}
 
   # The current generation of the agent, and the total number of generations to run.
-  num_generations: 2
+  num_generations: 3
   generation: ${eval:'int(${hydra_select:job.num, 0} // ${.population_size})'}

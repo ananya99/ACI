@@ -18,7 +18,6 @@ from cambrian.utils import evaluate_policy
 from cambrian.utils.logger import get_logger
 from cambrian.utils.wrappers import make_wrapped_env
 import wandb
-from cma import CMAEvolutionStrategy
 import os
 if TYPE_CHECKING:
     from cambrian import MjCambrianConfig

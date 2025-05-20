@@ -160,7 +160,7 @@ def fitness_from_monitor(
     predator_wins_ratio = 1 - prey_wins_ratio
     fitness = float(np.abs(predator_wins_ratio - prey_wins_ratio))
     print(f'[INFO] Prey: {prey_wins_ratio}, Predator: {predator_wins_ratio}, Fitness score: {fitness}')
-    return fitness
+    return -fitness
 
 
 def fitness_from_txt(config: "MjCambrianConfig", txt_file: Path) -> float:

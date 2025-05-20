@@ -66,7 +66,7 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         random_selector = np.random.random()
         if random_selector >= 0.0:
             if self.prey_model is None:
-                print(f'[INFO] Prey Model not found')
+                # print(f'[INFO] Prey Model not found')
                 return [-1.0, 0.0]
             obs = env._overlays.get('adversary_obs', False)
             action = self.prey_model.predict(obs, deterministic=True)

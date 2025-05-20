@@ -99,19 +99,19 @@ class MjCambrianTrainer:
 
         # Setup the environment, model, and callbacks
         # Training order
-        agent_names = ['agent_predator','agent_prey']
+        agent_names = ['agent_prey']
 
         env = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor.csv", training_agent_name=agent_names[0])
-        env2 = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor2.csv", training_agent_name=agent_names[1])
-        envs = [env, env2]
+        # env2 = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor2.csv", training_agent_name=agent_names[1])
+        envs = [env]
 
         eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name=agent_names[0])
-        eval_env2 = self._make_env(self._config.eval_env, 1, monitor="eval2_monitor.csv", training_agent_name=agent_names[1])
-        eval_envs = [eval_env, eval_env2]
+        # eval_env2 = self._make_env(self._config.eval_env, 1, monitor="eval2_monitor.csv", training_agent_name=agent_names[1])
+        eval_envs = [eval_env]
 
         callback = self._make_callback(eval_env)
-        callback2 = self._make_callback(eval_env2)
-        callbacks = [callback, callback2]
+        # callback2 = self._make_callback(eval_env2)
+        callbacks = [callback]
 
         # Save the eval environments xml
         for i, eval_env in enumerate(eval_envs):
@@ -139,7 +139,7 @@ class MjCambrianTrainer:
                 log_path = Path(orig_log_path) / agent_names[j] / f'{i+1}/'
                 log_path.mkdir(parents=True, exist_ok=True)
                 print("[INFO] Iteration: ", i+1)
-                print(f"[INFO] Training agent: {agent_names[j]} using model of agent: {agent_names[1-j]}")
+                # print(f"[INFO] Training agent: {agent_names[j]} using model of agent: {agent_names[1-j]}")
                 callbacks[j].callbacks[0].log_path = log_path
                 callbacks[j].callbacks[0].callback.callbacks[0].evaldir = log_path
                 callbacks[j].callbacks[0].callback.callbacks[1].evaldir = log_path
@@ -185,7 +185,7 @@ class MjCambrianTrainer:
     ) -> float:
         self._config.save(self._config.expdir / "eval_config.yaml")
 
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name= 'agent_predator')
+        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name= 'agent_prey')
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
         model = self._make_model(eval_env)
         # if load_if_exists and (self._config.expdir / "best_model.zip").exists():

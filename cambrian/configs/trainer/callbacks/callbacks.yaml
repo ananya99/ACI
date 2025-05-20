@@ -42,3 +42,8 @@ wandb_callback:
   project_name: "cambrian_predator_prey"
   run_name: ${expname}
   config: {}
+
+stop_training_on_winrate:
+  _target_: cambrian.ml.callbacks.StopTrainingOnWinrateThreshold
+  threshold: 0.7
+  window: 50

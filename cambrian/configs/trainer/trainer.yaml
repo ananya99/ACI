@@ -9,10 +9,10 @@ defaults:
   - wrappers@wrappers.constant_action_wrapper: constant_action_wrapper
   - wrappers@wrappers.final_mask_wrapper: final_mask_wrapper
 
-total_timesteps: 50_000
+total_timesteps: 250_000
 max_episode_steps: 256
 n_envs: 2
-timesteps_decay: 0.8
-agent_multiplier: 1.5
+timesteps_decay: 0.9
+agent_multiplier: 2
 iterations: 5
 prune_fn: null

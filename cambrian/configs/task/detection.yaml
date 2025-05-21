@@ -74,7 +74,7 @@ env:
     penalize_time:
       _target_: cambrian.envs.reward_fns.reward_fn_constant
       _partial_: true
-      reward: 0.02
+      reward: 0.1
       for_agents: ${glob:agent_prey,${oc.dict.keys:env.agents}}
 
   termination_fn:

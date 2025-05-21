@@ -16,7 +16,7 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         name: str,
         *,
         prey: str,
-        speed: float = 1.0,
+        speed: float = 0.9,
         capture_threshold: float = 1.0,
     ):
         super().__init__(config, name)
@@ -35,12 +35,29 @@ class MjCambrianAgentPredator(MjCambrianAgentPoint):
         self.extrapolation_step = 0
         self.delta = 0
         self.prev_action = np.array([-1.0, 0.0])
+        self.use_privileged_action = self.config.use_privileged_action
 
     def reset(self, *args) -> ObsType:
         return super().reset(*args)
 
     def get_action_privileged(self, env: MjCambrianMazeEnv) -> ActionType:
         assert self._prey in env.agents, f"Prey {self._prey} not found in env"
+
+        if self.use_privileged_action:
+            prey_pos = env.agents[self._prey].pos
+
+            target_vector = prey_pos[:2] - self.pos[:2]
+            distance = np.linalg.norm(target_vector)
+
+            if distance < self._capture_threshold:
+                # get_logger().info(f"{self.name} captured {self._prey}!")
+                return [0.0, 0.0]  
+
+            target_theta = np.arctan2(target_vector[1], target_vector[0])
+            theta_action = np.interp(target_theta, [-np.pi, np.pi], [-1, 1])
+
+            return [self._speed, theta_action]
+
         if not self.model_exists:
             if os.path.exists(self.model_path):
                 # print(f'[INFO] Loading model of predator from {self.model_path}')

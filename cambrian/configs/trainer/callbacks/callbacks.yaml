@@ -45,5 +45,5 @@ wandb_callback:
 
 stop_training_on_winrate:
   _target_: cambrian.ml.callbacks.StopTrainingOnWinrateThreshold
-  threshold: 0.7
-  window: 50
+  threshold: 0.98
+  window: 99

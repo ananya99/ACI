@@ -35,12 +35,29 @@ class MjCambrianAgentPrey(MjCambrianAgentPoint):
         self.extrapolation_step = 0
         self.delta = 0
         self.prev_action = np.array([-1.0, 0.0])
+        self.use_privileged_action = self.config.use_privileged_action
 
     def reset(self, *args) -> ObsType:
         return super().reset(*args)
 
     def get_action_privileged(self, env: MjCambrianMazeEnv) -> ActionType:
         assert self._predator in env.agents, f"Predator {self._predator} not found in env"
+
+        if self.use_privileged_action:
+            predator_pos = env.agents[self._predator].pos
+
+            escape_vector = self.pos[:2] - predator_pos[:2]
+            distance = np.linalg.norm(escape_vector)
+
+            if distance > self._safe_distance:
+                # get_logger().info(f"{self.name} is safe from {self._predator}.")
+                return [-1.0, 0.0]
+
+            escape_theta = np.arctan2(escape_vector[1], escape_vector[0])
+            theta_action = np.interp(escape_theta, [-np.pi, np.pi], [-1, 1])
+
+            return [self._speed, theta_action]
+
         if not self.model_exists:
             if os.path.exists(self.model_path):
                 print(f'[INFO] Loading model of prey from {self.model_path}')

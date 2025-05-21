@@ -2,7 +2,7 @@
 training and evaluation loops."""
 
 import os
-os.environ["MUJOCO_GL"] = "glfw"
+os.environ["MUJOCO_GL"] = "egl"
 
 import argparse
 
@@ -12,6 +12,7 @@ from cambrian import MjCambrianConfig, MjCambrianTrainer
 
 
 def main():
+    print("Starting main")
     parser = argparse.ArgumentParser()
     action = parser.add_mutually_exclusive_group(required=True)
     action.add_argument("--train", action="store_true", help="Train the model")

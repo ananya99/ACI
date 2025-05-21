@@ -1,16 +1,27 @@
 #!/bin/bash
 #SBATCH --nodes=1
-#SBATCH --cpus-per-task=16
-#SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
 #SBATCH --mem=64GB
-#SBATCH --time=2:00:00
+#SBATCH --cpus-per-task=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=8:00:00
 #SBATCH --job-name cambrian
+#SBATCH --output=out/R-%x.%j_%a.out
+#SBATCH --error=out/R-%x.%j_%a.err
 
-source /work/cvlab/students/bhagavan/ACI/.aci/bin/activate
+[ $# -eq 0 ] && (echo "Please provide the script" && return 0)
+SCRIPT=$1
+shift
 
-# Debugging: Check Python and PyTorch
-echo "Python binary: $(which python)"
-echo "Python version: $(python --version)"
+# Set mujoco gl depending on system
+# Mac will be cgl
+# all else will be egl
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    MUJOCO_GL=${MUJOCO_GL:-cgl}
+else
+    MUJOCO_GL=${MUJOCO_GL:-egl}
+fi
 
-MUJOCO_GL=egl python3 cambrian/main.py --train example=detection
+cmd="MUJOCO_GL=${MUJOCO_GL} python $SCRIPT $@"
+echo "Running command: $cmd" | tee /dev/stderr
+eval $cmd

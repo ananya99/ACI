@@ -29,7 +29,7 @@ def parse_evaluations_npz(evaluations_npz: Path) -> Dict[str, np.ndarray]:
 def parse_monitor_csv(monitor_csv: Path) -> Tuple[np.ndarray, np.ndarray]:
     """Parse the monitor csv file and return the timesteps and rewards."""
     assert monitor_csv.exists(), f"Monitor file {monitor_csv} does not exist."
-    timesteps, rewards = [], []
+    timesteps, rewards, episode_lengths = [], [], []
     with open(monitor_csv, "r") as f:
         # Skip the comment line
         f.readline()
@@ -38,8 +38,9 @@ def parse_monitor_csv(monitor_csv: Path) -> Tuple[np.ndarray, np.ndarray]:
         for row in csv_reader:
             timesteps.append(float(row["t"]))
             rewards.append(float(row["r"]))
+            episode_lengths.append(float(row["l"]))
 
-    return np.array(timesteps), np.array(rewards)
+    return np.array(timesteps), np.array(rewards), np.array(episode_lengths)
 
 
 def top_n_percent(
@@ -153,7 +154,7 @@ def fitness_from_monitor(
         - If the rewards are empty, returns negative infinity as the fitness value.
         - The monitor data should contain timesteps and corresponding rewards.
     """
-    timesteps, rewards = parse_monitor_csv(monitor_csv)
+    timesteps, rewards, episode_lengths = parse_monitor_csv(monitor_csv)
 
     if len(rewards) == 0:
         return -float("inf")
@@ -164,11 +165,13 @@ def fitness_from_monitor(
     )
     timesteps = timesteps.reshape(-1, n_episodes).mean(axis=1)
     rewards = rewards.reshape(-1, n_episodes).sum(axis=1)
+    
+    prey_wins = (episode_lengths == 256).sum()
 
     fitness = top_n_percent(rewards, percent, use_outliers=False)
     if return_data:
-        return fitness, (timesteps, rewards)
-    return fitness
+        return prey_wins, (timesteps, rewards)
+    return prey_wins
 
 
 def fitness_from_txt(config: "MjCambrianConfig", txt_file: Path) -> float:

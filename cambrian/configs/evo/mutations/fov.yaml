@@ -3,10 +3,6 @@
 hydra:
   sweeper:
     parametrization:
-      env.agents.agent_predator.eyes.eye.fov:
-        init: ${${parent:}}
-        lower: 1
-        upper: 100
       env.agents.agent_prey.eyes.eye.fov:
         init: ${${parent:}}
         lower: 1

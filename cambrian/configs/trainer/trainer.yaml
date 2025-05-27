@@ -11,7 +11,7 @@ defaults:
 
 total_timesteps: 200_000
 max_episode_steps: 256
-n_envs: 3
+n_envs: 2
 timesteps_decay: 0.95
 agent_multiplier: 0
 iterations: 1

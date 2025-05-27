@@ -10,7 +10,7 @@ eval_callback:
   log_path: ${expdir}
   deterministic: true
   render: True
-  eval_freq: 10000
+  eval_freq: 50000
   verbose: 0
 
   callback_after_eval:

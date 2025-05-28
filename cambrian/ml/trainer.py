@@ -156,8 +156,8 @@ class MjCambrianTrainer:
                 save_path = Path(self._config.expdir) / f'{agent_names[j]}_model.zip'
                 print("[INFO] Saving model of",  save_path)
                 agent_models[agent_names[j]].save(save_path)
-                envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
-                eval_envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
+                # envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
+                # eval_envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
             total_timesteps *= timesteps_decay
             
 

@@ -151,8 +151,8 @@ class MjCambrianTrainer:
                 callbacks[j].callbacks[2].iteration = i+1
                 callbacks[j].callbacks[2].steps = 0
                 callbacks[j].callbacks[3].is_predator = agent_names[j] == 'agent_predator'
-                if self.training_agent_name is not None:
-                    agent_multiplier = self._config.trainer.agent_multiplier if self.training_agent_name != agent_names[j] else 1
+                if self._config.trainer.training_agent_name != '':
+                    agent_multiplier = self._config.trainer.agent_multiplier if self._config.trainer.training_agent_name != agent_names[j] else 1
                 else:
                     agent_multiplier = self._config.trainer.agent_multiplier if agent_names[j] == 'agent_prey' else 1
                 agent_models[agent_names[j]].learn(total_timesteps=int(total_timesteps*agent_multiplier), callback=callbacks[j])

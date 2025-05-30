@@ -10,10 +10,10 @@ defaults:
   - wrappers@wrappers.final_mask_wrapper: final_mask_wrapper
 
 total_timesteps: 200_000
-training_agent_name: null
+training_agent_name: ''
 max_episode_steps: 256
 n_envs: 3
 timesteps_decay: 0.95
-agent_multiplier: 0
+agent_multiplier: 3
 iterations: 1
 prune_fn: null

@@ -16,7 +16,7 @@ Use the pyproject.toml file to install dependencies and set up the Python enviro
 
 ### Run Grid Search/Evolution
 
-1. Grid search for visual traits - run scripts/evo.sh. To configure the search:
+1. Grid search for visual traits - run scripts/grid_search.sh. To configure the search:
     - Set training_agent_name to specify which agent to evolve.
     - Adjust the visual trait parameters directly in the script.
     - Ensure the environment is correctly selected before execution.

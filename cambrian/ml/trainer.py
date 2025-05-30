@@ -17,7 +17,9 @@ from cambrian.ml.model import MjCambrianModel
 from cambrian.utils import evaluate_policy
 from cambrian.utils.logger import get_logger
 from cambrian.utils.wrappers import make_wrapped_env
+import wandb
 
+import os
 if TYPE_CHECKING:
     from cambrian import MjCambrianConfig
 
@@ -51,6 +53,10 @@ class MjCambrianTrainerConfig(HydraContainerConfig):
     total_timesteps: int
     max_episode_steps: int
     n_envs: int
+    agent_multiplier: float
+    timesteps_decay: float
+    iterations: int
+
 
     model: Callable[[MjCambrianEnv], MjCambrianModel]
     callbacks: Dict[str, BaseCallback | Callable[[VecEnv], BaseCallback]]
@@ -92,26 +98,68 @@ class MjCambrianTrainer:
             return -float("inf")
 
         # Setup the environment, model, and callbacks
-        env = self._make_env(self._config.env, self._config.trainer.n_envs)
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
+        # Training order
+        agent_names = ['agent_predator','agent_prey']
+
+        env = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor.csv", training_agent_name=agent_names[0])
+        env2 = self._make_env(self._config.env, self._config.trainer.n_envs, monitor="monitor2.csv", training_agent_name=agent_names[1])
+        envs = [env, env2]
+
+        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name=agent_names[0])
+        eval_env2 = self._make_env(self._config.eval_env, 1, monitor="eval2_monitor.csv", training_agent_name=agent_names[1])
+        eval_envs = [eval_env, eval_env2]
+
         callback = self._make_callback(eval_env)
-        model = self._make_model(env)
+        callback2 = self._make_callback(eval_env2)
+        callbacks = [callback, callback2]
 
         # Save the eval environments xml
-        cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
-        cambrian_env.xml.write(self._config.expdir / "env.xml")
-        with open(self._config.expdir / "compiled_env.xml", "w") as f:
-            f.write(cambrian_env.spec.to_xml())
+        for i, eval_env in enumerate(eval_envs):
+            cambrian_eval_env: MjCambrianEnv = eval_env.envs[0].unwrapped
+            cambrian_eval_env.xml.write(self._config.expdir / f"env_{i}.xml")
+            with open(self._config.expdir / f"compiled_env_{i}.xml", "w") as f:
+                f.write(cambrian_eval_env.spec.to_xml())
 
-        # Start training
+        agent_models = {}
+        for j, agent_name in enumerate(agent_names):
+            model_path = os.path.join(self._config.expdir, agent_name+'_model.zip')
+            agent_models[agent_name] = self._make_model(envs[j])
+            # agent_models[agent_name].save(model_path)
+            print("created and saved initial model for agent:", agent_name, "at", model_path)
+
+        iterations = self._config.trainer.iterations
+        iterations = self._config.trainer.iterations
         total_timesteps = self._config.trainer.total_timesteps
-        model.learn(total_timesteps=total_timesteps, callback=callback)
-        get_logger().info("Finished training the agent...")
+        timesteps_decay = self._config.trainer.timesteps_decay
 
-        # Save the policy
-        get_logger().info(f"Saving model to {self._config.expdir}...")
-        model.save_policy(self._config.expdir)
-        get_logger().debug(f"Saved model to {self._config.expdir}...")
+        orig_log_path = callbacks[j].callbacks[0].log_path
+
+        for i in range(iterations):
+            for j in range(len(agent_names)):
+                log_path = Path(orig_log_path) / agent_names[j] / f'{i+1}/'
+                log_path.mkdir(parents=True, exist_ok=True)
+                print("[INFO] Iteration: ", i+1)
+                print(f"[INFO] Training agent: {agent_names[j]} using model of agent: {agent_names[1-j]}")
+                callbacks[j].callbacks[0].log_path = log_path
+                callbacks[j].callbacks[0].callback.callbacks[0].evaldir = log_path
+                callbacks[j].callbacks[0].callback.callbacks[1].evaldir = log_path
+                callbacks[j].callbacks[2].training_agent_name = agent_names[j]
+                callbacks[j].callbacks[2].iteration = i+1
+                callbacks[j].callbacks[2].steps = 0
+                callbacks[j].callbacks[2].training_agent_name = agent_names[j]
+                callbacks[j].callbacks[2].iteration = i+1
+                callbacks[j].callbacks[2].steps = 0
+                callbacks[j].callbacks[3].is_predator = agent_names[j] == 'agent_predator'
+                agent_multiplier = self._config.trainer.agent_multiplier if agent_names[j] == 'agent_prey' else 1
+                agent_models[agent_names[j]].learn(total_timesteps=int(total_timesteps*agent_multiplier), callback=callbacks[j])
+                print("[INFO] Finished training the agent:", agent_names[j])
+                save_path = Path(self._config.expdir) / f'{agent_names[j]}_model.zip'
+                print("[INFO] Saving model of",  save_path)
+                agent_models[agent_names[j]].save(save_path)
+                envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
+                eval_envs[1-j].env_method("set_model_exists", f"{agent_names[j]}", False)
+            total_timesteps *= timesteps_decay
+            
 
         # The finished file indicates to the evo script that the agent is done
         Path(self._config.expdir / "finished").touch()
@@ -119,6 +167,7 @@ class MjCambrianTrainer:
         # Calculate fitness
         fitness = self._config.trainer.fitness_fn(self._config)
         get_logger().info(f"Final Fitness: {fitness}")
+        wandb.finish()
 
         # Save the final fitness to a file
         with open(self._config.expdir / "train_fitness.txt", "w") as f:
@@ -136,11 +185,12 @@ class MjCambrianTrainer:
     ) -> float:
         self._config.save(self._config.expdir / "eval_config.yaml")
 
-        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv")
+        eval_env = self._make_env(self._config.eval_env, 1, monitor="eval_monitor.csv", training_agent_name= 'agent_predator')
+        cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
         model = self._make_model(eval_env)
-        if load_if_exists and (self._config.expdir / "best_model.zip").exists():
-            get_logger().info("Loading best model...")
-            model = model.load(self._config.expdir / "best_model")
+        # if load_if_exists and (self._config.expdir / "best_model.zip").exists():
+        get_logger().info("Loading best model...")
+        model = model.load("/home/neo/Projects/vi/project/ACI/logs/2025-05-13/exp_detection/best_model.zip")
 
         # Save the eval environments xml
         cambrian_env: MjCambrianEnv = eval_env.envs[0].unwrapped
@@ -179,6 +229,7 @@ class MjCambrianTrainer:
         self,
         config: MjCambrianEnvConfig,
         n_envs: int,
+        training_agent_name: str = None,
         *,
         monitor: str | None = "monitor.csv",
     ) -> VecEnv:
@@ -193,6 +244,7 @@ class MjCambrianTrainer:
                 name=self._config.expname,
                 wrappers=wrappers,
                 seed=self._calc_seed(i),
+                training_agent_name = training_agent_name,
             )
             envs.append(wrapped_env)
 
@@ -216,7 +268,7 @@ class MjCambrianTrainer:
 
         callbacks = []
         for callback in self._config.trainer.callbacks.values():
-            # TODO: is this a good assumption? is there a better way to do this?
+            # Only call the callback if it's a partial function
             if isinstance(callback, partial):
                 callback = callback(env)
             callbacks.append(callback)

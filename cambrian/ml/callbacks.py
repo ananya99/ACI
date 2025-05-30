@@ -5,7 +5,7 @@ import glob
 import shutil
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, Iterable
+from typing import Any, Dict, Iterable, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,6 +24,23 @@ from stable_baselines3.common.results_plotter import load_results, ts2xy
 from cambrian.envs import MjCambrianEnv
 from cambrian.ml.model import MjCambrianModel
 from cambrian.utils.logger import get_logger
+
+
+class StopTrainingOnWinrateThreshold(BaseCallback):
+    def __init__(self, threshold: float, window: int, verbose=0):
+        super().__init__(verbose)
+        self.threshold = threshold
+        self.window = window
+        self.is_predator = True
+
+    def _on_step(self) -> bool:
+        if len(self.model.ep_info_buffer) > self.window:
+            winrate = np.mean(np.array([ep_info['l'] for ep_info in self.model.ep_info_buffer])[-self.window:] != 256)
+            if self.is_predator:
+                return  winrate < self.threshold
+            else:
+                return winrate > 1 - self.threshold
+        return True
 
 
 class MjCambrianPlotMonitorCallback(BaseCallback):
@@ -64,12 +81,13 @@ class MjCambrianPlotMonitorCallback(BaseCallback):
         # Temporarily set the monitor ext so that the right file is read
         old_ext = Monitor.EXT
         Monitor.EXT = str(self.filename_csv)
+        l = load_results(self.logdir).l.values == 256
         x, y = ts2xy(load_results(self.logdir), "timesteps")
         Monitor.EXT = old_ext
-        if len(x) <= 20 or len(y) <= 20:
+        if len(x) <= 20 or len(y) <= 20 or len(l) <= 20:
             get_logger().warning(f"Not enough {self.filename} data to plot.")
             return True
-        original_x, original_y = x.copy(), y.copy()
+        original_x, original_y, original_l = x.copy(), y.copy(), l.copy()
 
         get_logger().info(f"Plotting {self.filename} results at {self.evaldir}")
 
@@ -78,6 +96,7 @@ class MjCambrianPlotMonitorCallback(BaseCallback):
 
         n = min(len(y) // 10, 1000)
         y = y.astype(float)
+        l = l.astype(float)
 
         if self.n_episodes > 1:
             assert len(y) % self.n_episodes == 0, (
@@ -85,14 +104,17 @@ class MjCambrianPlotMonitorCallback(BaseCallback):
                 f" number of episodes in the {self.filename} data."
             )
             y = y.reshape(-1, self.n_episodes).mean(axis=1)
+            l = l.reshape(-1, self.n_episodes).mean(axis=1)
         else:
             y = moving_average(y, window=n)
+            l = moving_average(l, window=n)
 
         x = moving_average(x, window=n).astype(int)
 
+
         # Make sure the x, y are of the same length
         min_len = min(len(x), len(y))
-        x, y = x[:min_len], y[:min_len]
+        x, y, l = x[:min_len], y[:min_len], l[:min_len]
 
         plt.plot(x, y)
         plt.plot(original_x, original_y, color="grey", alpha=0.3)
@@ -100,6 +122,14 @@ class MjCambrianPlotMonitorCallback(BaseCallback):
         plt.xlabel("Number of Timesteps")
         plt.ylabel("Rewards")
         plt.savefig(self.evaldir / self.filename.with_suffix(".png"))
+        plt.cla()
+
+        plt.plot(x, l)
+        plt.plot(original_x, original_l, color="grey", alpha=0.3)
+
+        plt.xlabel("Number of Timesteps")
+        plt.ylabel("Winrate")
+        plt.savefig(self.evaldir / Path(self.filename.name + "_winrate").with_suffix(".png"))
         plt.cla()
 
         return True
@@ -310,3 +340,82 @@ class MjCambrianSaveConfigCallback(HydraCallback):
 
         config.logdir.mkdir(parents=True, exist_ok=True)
         OmegaConf.save(config, config.logdir / "full.yaml")
+
+
+class WandbCallback(BaseCallback):
+    """Callback for logging metrics to Weights & Biases.
+    
+    This callback will log:
+    - Training metrics (episode length, reward, etc.)
+    - Evaluation metrics
+    - Model checkpoints
+    - Environment videos
+    """
+    
+    def __init__(
+        self,
+        project_name: str,
+        run_name: Optional[str] = None,
+        config: Optional[Dict] = None,
+        verbose: int = 0,
+    ):
+        super().__init__(verbose)
+        self.project_name = project_name
+        self.run_name = run_name
+        self.config = config or {}
+        self.training_agent_name = None
+        self.iteration = 0
+        self.steps = 0
+        
+    def _on_training_start(self) -> None:
+        """Initialize wandb at the start of training."""
+        import wandb
+        
+        wandb.init(
+            project=self.project_name,
+            name=self.run_name,
+            config=self.config,
+            sync_tensorboard=True,
+        )
+        
+    def _on_step(self) -> bool:
+        """Log metrics at each step."""
+        import wandb
+        
+        # Log training metrics
+        if self.locals.get("dones", None) is not None:
+            for i, done in enumerate(self.locals["dones"]):
+                if done:
+                    episode_info = self.locals["infos"][i]
+                    wandb.log({
+                        "train/ep_len": episode_info.get("episode", {}).get("l", 0),
+                        "train/ep_rew": episode_info.get("episode", {}).get("r", 0),
+                        "train/prey_win": int(episode_info.get("episode", {}).get("l", 0) == 256),
+                        "train/predator_win": int(episode_info.get("episode", {}).get("l", 0) < 256),
+                        "train/global_step": self.num_timesteps,
+                        "train/iteration": self.iteration,
+                    })
+                    wandb.log({
+                        f"train/iter_{self.iteration}_{self.training_agent_name}_ep_rew": episode_info.get("episode", {}).get("r", 0),
+                        f"train/iter_{self.iteration}_{self.training_agent_name}_ep_len": episode_info.get("episode", {}).get("l", 0),
+                    }, step=self.steps)
+        self.steps += 1
+        return True
+    
+    def _on_rollout_end(self) -> None:
+        """Log rollout metrics."""
+        import wandb
+        
+        # Log rollout metrics
+        wandb.log({
+            "train/rollout_ep_len_mean": self.locals.get("ep_info_buffer", {}).get("l", 0),
+            "train/rollout_ep_rew_mean": self.locals.get("ep_info_buffer", {}).get("r", 0),
+            "train/rollout_ep_len_std": self.locals.get("ep_info_buffer", {}).get("l_std", 0),
+            "train/rollout_ep_rew_std": self.locals.get("ep_info_buffer", {}).get("r_std", 0),
+        })
+    
+    def _on_training_end(self) -> None:
+        """Close wandb at the end of training."""
+        return None
+        # import wandb
+        # wandb.finish()

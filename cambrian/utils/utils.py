@@ -71,14 +71,18 @@ def evaluate_policy(
         # don't set to `record_path is not None` directly bc this will delete overlays
         cambrian_env.record()
 
+    # print("cambrian_env.observation_spaces: ", cambrian_env.observation_spaces)
+    # print("cambrian_env.action_spaces: ", cambrian_env.action_spaces)
+    # print("cambrian_env.agents.keys: ", cambrian_env.agents.keys())
+
     run = 0
     obs = env.reset()
     get_logger().info(f"Starting {num_runs} evaluation run(s)...")
+    # print("obs after reset: ", obs.keys())
     while run < num_runs:
-        # get number of parameters
         action, _ = model.predict(obs, deterministic=True)
-        obs, _, done, _ = env.step(action)
-
+        obs, reward, done, _ = env.step(action)
+        # print(reward)
         if done:
             get_logger().info(
                 f"Run {run} done. "

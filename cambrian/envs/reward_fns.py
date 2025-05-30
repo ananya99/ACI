@@ -45,6 +45,7 @@ def apply_reward_fn(
     disable: bool = False,
     disable_on_max_episode_steps: bool = False,
 ) -> float:
+    # print(f'For agents: {for_agents}')
     """Applies the reward function to the agent if it is in the for_agents list."""
     if disable or not agent_selected(agent, for_agents):
         return 0.0
@@ -65,11 +66,14 @@ def reward_fn_constant(
     truncated: bool,
     info: Dict[str, Any],
     *,
+    for_agents: Optional[List[str]] = None,
     reward: float,
     **kwargs,
 ) -> float:
     """Returns a constant reward."""
-    return apply_reward_fn(env, agent, reward_fn=lambda: reward, **kwargs)
+    if not agent_selected(agent, for_agents) :
+        return 0.0
+    return apply_reward_fn(env, agent, reward_fn=lambda: reward,**kwargs)
 
 
 def reward_fn_done(
@@ -79,6 +83,7 @@ def reward_fn_done(
     truncated: bool,
     info: Dict[str, Any],
     *,
+    for_agents: Optional[List[str]] = None,
     termination_reward: float = 0.0,
     truncation_reward: float = 0.0,
     **kwargs,
@@ -94,13 +99,15 @@ def reward_fn_done(
         truncation_reward (float): The reward to give the agent if the episode is
             truncated. Defaults to 0.
     """
-
+    # print(f'Terminated reward: {termination_reward}')
+    if agent.name != env.training_agent_name or not agent_selected(agent,for_agents):
+        return 0.0
     def calc_reward():
         reward = 0.0
-        if terminated:
-            reward += termination_reward
         if truncated:
             reward += truncation_reward
+        elif terminated:
+            reward += termination_reward
         return reward
 
     return apply_reward_fn(
@@ -235,10 +242,13 @@ def reward_fn_has_contacts(
     truncated: bool,
     info: Dict[str, Any],
     *,
+    for_agents: Optional[List[str]] = None,
     reward: float,
     **kwargs,
 ) -> float:
     """Rewards the agent if it has contacts."""
+    if agent.name != env.training_agent_name or not agent_selected(agent,for_agents):
+        return 0.0
     return apply_reward_fn(
         env,
         agent,
@@ -319,8 +329,11 @@ def reward_combined(
     """
     accumulated_reward = 0
     for name, fn in reward_fns.items():
-        reward = fn(env, agent, terminated, truncated, info)
 
+        reward = fn(env, agent, terminated, truncated, info)
+        # if name == 'reward_if_done' and terminated:
+        #     print(reward)
+        #     print(terminated,truncated)
         if name in exclusive_fns and reward != 0:
             return reward
         accumulated_reward += reward

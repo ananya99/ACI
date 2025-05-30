@@ -7,6 +7,7 @@ import gymnasium as gym
 import numpy as np
 from gymnasium.wrappers.numpy_to_torch import numpy_to_torch, torch_to_numpy
 from stable_baselines3.common.env_checker import check_env
+from itertools import cycle
 
 from cambrian.envs import MjCambrianEnv, MjCambrianEnvConfig
 from cambrian.utils import device, is_integer
@@ -82,6 +83,273 @@ class MjCambrianSingleAgentEnvWrapper(gym.Wrapper):
             truncated = truncated[self._agent.name]
 
         return obs, reward, terminated, truncated, info
+
+class MjCambrianAECEnvWrapper(gym.Wrapper):
+    def __init__(self, env: MjCambrianEnv):
+        super().__init__(env)
+        self.env: MjCambrianEnv
+        self._agents = cycle(env.agents)
+        self.selected_agent = None
+        self.iter_agent()
+        self.iter_agent()
+        self.stationary_action = np.array([-1.0, 0.0])
+        self._agent = env.agents[self.selected_agent]
+        self.action_space = self._agent.action_space
+        self.observation_space = self._agent.observation_space
+    
+    def check_agent_selection(self,agent_name):
+        return agent_name == self.selected_agent
+
+    def action_mask(self, action, i , agent_name):
+        if self.check_agent_selection(agent_name):
+            return action
+        else:
+            return self.stationary_action
+
+    def iter_agent(self):
+        self.selected_agent = next(self._agents)
+
+    def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
+        obs, info = self.env.reset(*args, **kwargs)
+        return obs[self.selected_agent], info
+
+    def step(
+        self, action: ActionType
+    ) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
+        # Convert the action back to a dict
+        action = {
+            agent_name: self.action_mask(action, i, agent_name)
+            for i, agent_name in enumerate(self.env.agents.keys())
+            if self.env.agents[agent_name].config.trainable
+        }
+
+        obs, reward, terminated, truncated, info = self.env.step(action)
+
+        # Accumulate the rewards, terminated, and truncated
+        reward = reward[self.selected_agent]
+        terminated = terminated[self.selected_agent]
+        truncated = truncated[self.selected_agent]
+
+        return obs, reward, terminated, truncated, info
+
+
+class MjCambrianMaskedAECEnvWrapper(gym.Wrapper):
+    def __init__(self, env: MjCambrianEnv):
+        super().__init__(env)
+        self.env: MjCambrianEnv
+        self.prev_action = np.array([[-1.0,0.0],[-1.0,0.0]])
+    
+    # def check_agent_selection(self,agent_name):
+    #     return agent_name == self.selected_agent
+    
+    # def set_selected_agent(self, selected_agent):
+    #     self.selected_agent = self.env.unwrapped.agents[selected_agent]
+
+    # def obs_mask(self, obj):
+    #     if isinstance(obj,list) :
+    #         for i, x in enumerate(obj):
+    #             obj[i] = x*0
+    #     else:
+    #         obj = obj * 0
+    #     return obj
+
+    # def action_mask(self, action, i , agent_name):
+    #     if self.check_agent_selection(agent_name):
+    #         self.prev_action[:,i] = action[:,i]
+    #         return action[:,i]
+    #     else:
+    #         return self.prev_action[:,i]
+
+    def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
+        obs, info = self.env.reset(*args, **kwargs)
+
+        flattened_obs: Dict[str, Any] = {}
+        for agent_name, agent_obs in obs.items():
+            if isinstance(agent_obs, dict):
+                for key, value in agent_obs.items():
+                    if key in ['action', 'contacts']:
+                        flattened_obs[f"{agent_name}_{key}"] = value
+                    else:
+                        flattened_obs[f"{key}"] = value
+            else:
+                flattened_obs[agent_name] = agent_obs
+
+        return flattened_obs, info
+
+    def step(
+        self, action: ActionType
+    ) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
+        # Convert the action back to a dict
+        action = action.reshape(-1, len(self.env.agents))
+        action = {
+            agent_name: action[:,i]
+            for i, agent_name in enumerate(self.env.agents.keys())
+            if self.env.agents[agent_name].config.trainable
+        }
+
+        obs, reward, terminated, truncated, info = self.env.step(action)
+
+
+        # Flatten the observations
+        flattened_obs: Dict[str, Any] = {}
+        for agent_name, agent_obs in obs.items():
+            if isinstance(agent_obs, dict):
+                for key, value in agent_obs.items():
+                    if key in ['action', 'contacts']:
+                        flattened_obs[f"{agent_name}_{key}"] = value
+                    else:
+                        flattened_obs[f"{key}"] = value
+            else:
+                flattened_obs[agent_name] = agent_obs
+        return flattened_obs, reward, terminated, truncated, info
+
+    @property
+    def observation_space(self) -> gym.spaces.Dict:
+        """SB3 doesn't support nested Dict observation spaces, so we'll flatten it.
+        If each agent has a Dict observation space, we'll flatten it into a single
+        observation where the key in the dict is the agent name and the original space
+        name."""
+        observation_space: Dict[str, gym.Space] = {}
+        for agent in self.env.agents.values():
+            agent_observation_space = agent.observation_space
+            if isinstance(agent_observation_space, gym.spaces.Dict):
+                for key, value in agent_observation_space.spaces.items():
+                    if key in ['action', 'contacts']:
+                        observation_space[f"{agent.name}_{key}"] = value
+                    else:
+                        observation_space[f"{key}"] = value
+            else:
+                observation_space[agent.name] = agent_observation_space
+        return gym.spaces.Dict(observation_space)
+
+    @property
+    def action_space(self) -> gym.spaces.Box:
+        """The only gym.Space that SB3 supports that's continuous for the action space
+        is a Box. We can assume each agent's action space is a Box, so we'll flatten
+        each action space into one Box for the environment.
+
+        Assumptions:
+            - All agents have the same number of actions
+            - All actions have the same shape
+            - All actions are continuous
+            - All actions are normalized between -1 and 1
+        """
+
+        # Get the first agent's action space
+        first_agent_name = next(iter(self.env.agents.keys()))
+        first_agent_action_space = self.env.agents[first_agent_name].action_space
+
+        # Check if the action space is continuous
+        assert isinstance(first_agent_action_space, gym.spaces.Box), (
+            "SB3 only supports continuous action spaces for the environment. "
+            f"agent {first_agent_name} has a {type(first_agent_action_space)}"
+            " action space."
+        )
+
+        # Get the shape of the action space
+        shape = first_agent_action_space.shape
+        low = first_agent_action_space.low
+        high = first_agent_action_space.high
+
+        # Check if all agents have the same number of actions
+        for agent_name, agent_action_space in self.env.action_spaces.items():
+            assert shape == agent_action_space.shape, (
+                "All agents must have the same number of actions. "
+                f"agent {first_agent_name} has {shape} actions, but {agent_name} "
+                f"has {agent_action_space.shape} actions."
+            )
+
+            # Check if the action space is continuous
+            assert isinstance(agent_action_space, gym.spaces.Box), (
+                "SB3 only supports continuous action spaces for the environment. "
+                f"agent {first_agent_name} has a "
+                f"{type(first_agent_action_space)} action space."
+            )
+
+            assert all(low == agent_action_space.low), (
+                "All actions must have the same low value. "
+                f"agent {first_agent_name} has a low value of {low}, "
+                f"but {agent_name} has a low value of {agent_action_space.low}."
+            )
+
+            assert all(high == agent_action_space.high), (
+                "All actions must have the same high value. "
+                f"agent {first_agent_name} has a high value of {high}, "
+                f"but {agent_name} has a high value of {agent_action_space.high}."
+            )
+
+        low = np.tile(low, len(self.env.agents))
+        high = np.tile(high, len(self.env.agents))
+        shape = (shape[0] * len(self.env.agents),)
+        return gym.spaces.Box(
+            low=low, high=high, shape=shape, dtype=first_agent_action_space.dtype
+        )
+
+
+
+class MjCambiranMaskWrapper(gym.Wrapper):
+
+    def __init__(self, env: MjCambrianEnv): 
+        self.env = env
+        self._training_agent = None
+        self._agents = env.unwrapped.agents
+        super().__init__(env)
+
+    def set_training_agent(self, training_agent):
+        self._training_agent = self.env.unwrapped.agents[training_agent]
+
+    @property
+    def action_space(self) -> gym.spaces.Box:
+        return self._training_agent.action_space
+
+    def reset(self, *args, **kwargs) -> Tuple[ObsType, InfoType]:
+        obs, info = self.env.reset(*args, **kwargs)
+        filtered_obs: Dict[str, Any] = {}
+        adversary_obs: Dict[str, Any] = {}
+        for key, value in obs.items():
+            if self._training_agent.name in key:
+                filtered_obs[key] = value
+            else:
+                adversary_obs[key] = value
+
+        self.env.unwrapped._overlays['adversary_obs'] = adversary_obs
+
+        return filtered_obs, info
+
+
+    def step(
+        self, action: ActionType
+    ) -> Tuple[ObsType, RewardType, TerminatedType, TruncatedType, InfoType]:
+        added_action = np.zeros((2, len(self._agents)))
+        for i, agent in enumerate(self._agents.keys()):
+            # print(agent,self._training_agent.name)
+            if agent == self._training_agent.name:
+                added_action[:,i] = action
+        added_action = added_action.reshape(-1)
+        obs, reward, terminated, truncated, info = self.env.step(added_action)
+        # print('reward both',reward)
+        reward = reward[self._training_agent.name]
+        terminated = terminated[self._training_agent.name] 
+        truncated = truncated[self._training_agent.name]
+
+        filtered_obs: Dict[str, Any] = {}
+        adversary_obs: Dict[str, Any] = {}
+        for key, value in obs.items():
+            if self._training_agent.name in key:
+                filtered_obs[key] = value
+            else:
+                adversary_obs[key] = value
+
+        self.env.unwrapped._overlays['adversary_obs'] = adversary_obs
+        return filtered_obs, reward, terminated, truncated, info
+
+    @property
+    def observation_space(self) -> gym.spaces.Dict:
+        observation_space: Dict[str, gym.Space] = {}
+        for key, space in self.env.observation_space.spaces.items():
+            if self._training_agent.name in key:
+                observation_space[key] = space
+        return gym.spaces.Dict(observation_space)
 
 
 class MjCambrianPettingZooEnvWrapper(gym.Wrapper):
@@ -335,15 +603,25 @@ def make_wrapped_env(
     config: MjCambrianEnvConfig,
     wrappers: List[Callable[[gym.Env], gym.Env]],
     seed: Optional[int] = None,
+    training_agent_name = None,
     **kwargs,
 ) -> gym.Env:
     """Utility function for creating a MjCambrianEnv."""
-
     def _init():
         env = config.instance(config, **kwargs)
+        if hasattr(env, 'set_training_agent') and training_agent_name is not None:
+                env.set_training_agent(training_agent_name)
         for wrapper in wrappers:
             env = wrapper(env)
+            if hasattr(env, 'set_training_agent') and training_agent_name is not None:
+                env.set_training_agent(training_agent_name)
+            # if isinstance(wrapper, MjCambrianMultiAgentEnvWrapper):
+            #     print("cambrian_env.agents.keys: ", env.agents.keys())
         # check_env will call reset and set the seed to 0; call set_random_seed after
+        # print(f"Checking env {env}")
+        # print("observation space:", env.observation_space)
+        # print("action space:", env.action_space)
+        # print("cambrian_env.agents.keys: ", env.agents.keys())
         check_env(env, warn=False)
         env.unwrapped.set_random_seed(seed)
         return env

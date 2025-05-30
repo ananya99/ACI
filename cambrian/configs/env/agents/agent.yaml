@@ -29,3 +29,4 @@ use_contact_obs: ${.trainable}
 
 # Default configuration is no eyes
 eyes: {}
+extrapolation_fraction: 0.5

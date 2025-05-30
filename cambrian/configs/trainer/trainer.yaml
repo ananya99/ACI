@@ -3,13 +3,16 @@ defaults:
   - callbacks: callbacks
   - fitness_fn: eval_monitor
 
-  - wrappers@wrappers.agent_env_wrapper: single_agent_env_wrapper
+  - wrappers@wrappers.agent_env_wrapper: masked_aec_env_wrapper
   - wrappers@wrappers.torch_to_numpy_wrapper: torch_to_numpy_wrapper
   - wrappers@wrappers.frame_stack_wrapper: frame_stack_wrapper
   - wrappers@wrappers.constant_action_wrapper: constant_action_wrapper
+  - wrappers@wrappers.final_mask_wrapper: final_mask_wrapper
 
-total_timesteps: 500_000
+total_timesteps: 200_000
 max_episode_steps: 256
-n_envs: ${eval:'int(${num_cpus:} // 2)'}
-
+n_envs: 3
+timesteps_decay: 0.95
+agent_multiplier: 0
+iterations: 1
 prune_fn: null

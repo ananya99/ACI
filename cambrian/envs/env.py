@@ -162,6 +162,7 @@ class MjCambrianEnv(ParallelEnv, Env):
         self._record: bool = False
         self._rollout: Dict[str, Any] = {}
         self._overlays: Dict[str, Any] = {}
+        self.training_agent_name = None
 
         # We'll store the info dict as a state within this class so that the truncation,
         # termination, and reward functions can use it for keeping a state. Like passing
@@ -172,6 +173,9 @@ class MjCambrianEnv(ParallelEnv, Env):
         # on each step, as this will cause the info dict to grow until the end of the
         # episode.
         self._info: Dict[str, Dict[str, Any]]
+
+    def set_training_agent(self, training_agent_name):
+        self.training_agent_name = training_agent_name
 
     def _create_agents(self):
         """Helper method to create the agents."""
@@ -280,8 +284,14 @@ class MjCambrianEnv(ParallelEnv, Env):
         info = self._info
 
         # First, apply the actions to the agents and step the simulation
+        # print(self.observation_spaces)
         for name, agent in self._agents.items():
-            if not agent.trainable or agent.config.use_privileged_action:
+            # if name in action:
+            #     print(f"Agent action pair: {name}:{action[name].shape}")
+            # else:
+            #     print("Action for ", name, "not found in action dict. Available actions:", action.keys())
+            if not agent.trainable or self.training_agent_name != name:
+                # print(f'Agent {name} is using privileged action')
                 if not agent.trainable and name in action:
                     get_logger().warning(
                         f"Action for {name} found in action dict. "
@@ -302,7 +312,6 @@ class MjCambrianEnv(ParallelEnv, Env):
         obs: Dict[str, Any] = {}
         for name, agent in self._agents.items():
             obs[name] = agent.step()
-
         # Call helper methods to update the observations, rewards, terminated, and info
         obs, info = self._config.step_fn(self, obs, info)
         terminated = self._compute_terminated(info)
@@ -461,6 +470,12 @@ class MjCambrianEnv(ParallelEnv, Env):
                 overlays.append(overlay)
         return overlays
 
+    def set_model_exists(self, agent_name: str, value: bool):
+        if agent_name in self._agents:
+            self._agents[agent_name].model_exists = value
+        else:
+            raise ValueError(f"Agent '{agent_name}' not found in _agents")
+
     @property
     def name(self) -> str:
         """Returns the name of the environment."""
@@ -563,6 +578,7 @@ class MjCambrianEnv(ParallelEnv, Env):
         for name, agent in self._agents.items():
             if agent.trainable:
                 observation_spaces[name] = agent.observation_space
+
         return spaces.Dict(observation_spaces)
 
     @property
@@ -679,6 +695,7 @@ if __name__ == "__main__":
         env.spec.save(config.expdir / "env.xml")
 
         action = {name: [-1.0, -0.0] for name, a in env.agents.items() if a.trainable}
+        # print("Action in run_renderer: ", action)
         env.step(action.copy())
 
         if "human" in config.env.renderer.render_modes:

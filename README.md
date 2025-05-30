@@ -6,11 +6,11 @@ We extended the original framework to support predator-prey reinforcement learni
 
 ## Usage Instructions
 
-### Set up the environment
+### Set up the Environment
 
 Use the pyproject.toml file to install dependencies and set up the Python environment.
 
-### Run alternate training
+### Run Alternate Training
 
 1. Execute scripts/rl.sh. Make sure to select the appropriate environment before running.
 

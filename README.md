@@ -4,6 +4,8 @@ This project is a fork of [cambrian-org/ACI](https://github.com/cambrian-org/ACI
 
 We extended the original framework to support predator-prey reinforcement learning and the evolution of agents' visual morphological traits.
 
+Our code is in github in https://github.com/ananya99/ACI.
+
 ## Usage Instructions
 
 ### Set up the Environment
